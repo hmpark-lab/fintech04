@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Amazon Linux 2023 기준 EC2 Docker 배포 수정안</title>
+  <style>
+    :root {
+      --bg: #f6f8fb;
+      --card: #ffffff;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --line: #e5e7eb;
+      --accent: #2563eb;
+      --accent-soft: #eff6ff;
+      --ok: #059669;
+      --warn: #dc2626;
+      --code-bg: #0f172a;
+      --code-text: #e5e7eb;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Pretendard", "Apple SD Gothic Neo", "Malgun Gothic", Arial, sans-serif;
+      background: linear-gradient(180deg, #f8fbff 0%, var(--bg) 100%);
+      color: var(--text);
+      line-height: 1.7;
+    }
+    .wrap {
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 40px 20px 80px;
+    }
+    .hero {
+      background: linear-gradient(135deg, #dbeafe 0%, #ffffff 55%, #eef2ff 100%);
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      padding: 32px;
+      box-shadow: 0 12px 30px rgba(15, 23, 42, 0.06);
+      margin-bottom: 24px;
+    }
+    h1 {
+      margin: 0 0 10px;
+      font-size: 2rem;
+      line-height: 1.25;
+    }
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 1.02rem;
+    }
+    .section {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      padding: 26px 24px;
+      margin-top: 18px;
+      box-shadow: 0 10px 24px rgba(15, 23, 42, 0.04);
+    }
+    h2 {
+      margin: 0 0 12px;
+      font-size: 1.35rem;
+      color: #111827;
+    }
+    p { margin: 10px 0; }
+    ul {
+      margin: 10px 0 0 0;
+      padding-left: 20px;
+    }
+    li { margin: 6px 0; }
+    .label {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 0.88rem;
+      font-weight: 700;
+      background: var(--accent-soft);
+      color: var(--accent);
+      margin-bottom: 10px;
+    }
+    .note, .warn, .tip {
+      border-radius: 14px;
+      padding: 14px 16px;
+      margin-top: 12px;
+      border: 1px solid var(--line);
+    }
+    .note {
+      background: #f9fafb;
+    }
+    .warn {
+      background: #fef2f2;
+      border-color: #fecaca;
+    }
+    .tip {
+      background: #ecfdf5;
+      border-color: #a7f3d0;
+    }
+    pre {
+      margin: 14px 0 0;
+      background: var(--code-bg);
+      color: var(--code-text);
+      padding: 16px 18px;
+      border-radius: 16px;
+      overflow-x: auto;
+      font-size: 0.95rem;
+      line-height: 1.6;
+      border: 1px solid #1e293b;
+    }
+    code { font-family: "D2Coding", "Consolas", monospace; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 12px;
+      overflow: hidden;
+      border-radius: 14px;
+      border: 1px solid var(--line);
+    }
+    th, td {
+      padding: 12px 14px;
+      text-align: left;
+      border-bottom: 1px solid var(--line);
+      vertical-align: top;
+    }
+    th {
+      background: #f9fafb;
+      font-weight: 700;
+    }
+    .bad { color: var(--warn); font-weight: 700; }
+    .good { color: var(--ok); font-weight: 700; }
+    .footer {
+      margin-top: 28px;
+      color: var(--muted);
+      font-size: 0.95rem;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <section class="hero">
+      <div class="label">수정안</div>
+      <h1>Amazon Linux 2023 기준<br>EC2 Docker 배포 강의안 수정안</h1>
+      <p class="subtitle">
+        기존 강의안의 3.1 이후 내용을 Amazon Linux 2023 환경에 맞게 정리한 HTML 문서입니다.
+      </p>
+    </section>
+
+    <section class="section">
+      <div class="label">3.1</div>
+      <h2>EC2 인스턴스 설정 및 접속</h2>
+      <pre><code>ssh -i "your-key.pem" ec2-user@your-ec2-public-ip</code></pre>
+      <div class="note">
+        <strong>설명</strong>
+        <ul>
+          <li>Amazon Linux 2023의 기본 사용자 계정은 <code>ec2-user</code> 입니다.</li>
+          <li>pem 키 권한 문제가 있으면 아래 명령을 먼저 실행합니다.</li>
+        </ul>
+      </div>
+      <pre><code>chmod 400 your-key.pem</code></pre>
+    </section>
+
+    <section class="section">
+      <div class="label">3.2</div>
+      <h2>패키지 업데이트 및 Git 설치</h2>
+      <pre><code>sudo dnf update -y
+sudo dnf install -y git</code></pre>
+      <div class="tip">
+        <strong>설명</strong>
+        <ul>
+          <li>Amazon Linux 2023에서는 <code>yum</code>보다 <code>dnf</code> 사용이 표준입니다.</li>
+          <li>GitHub 저장소를 clone 하기 위해 git 설치가 필요합니다.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="label">3.3</div>
+      <h2>Docker 설치 및 실행</h2>
+      <pre><code>sudo dnf install -y docker
+sudo systemctl enable --now docker</code></pre>
+      <p><strong>현재 사용자에게 docker 실행 권한 부여</strong></p>
+      <pre><code>sudo usermod -aG docker ec2-user</code></pre>
+      <div class="warn">
+        <strong>주의</strong><br>
+        그룹 권한 적용을 위해 로그아웃 후 다시 접속해야 합니다.
+      </div>
+      <pre><code>exit
+# 다시 접속
+ssh -i "your-key.pem" ec2-user@your-ec2-public-ip</code></pre>
+      <p><strong>설치 확인</strong></p>
+      <pre><code>docker --version
+docker ps</code></pre>
+    </section>
+
+    <section class="section">
+      <div class="label">3.4</div>
+      <h2>Docker Compose 설치 (Plugin 방식)</h2>
+      <div class="warn">
+        기존의 <code>docker-compose</code> 단독 바이너리 방식은 최신 기준에서는 구식입니다.<br>
+        Amazon Linux 2023에서는 <strong>docker compose</strong> 명령을 사용하는 plugin 방식으로 정리하는 것이 좋습니다.
+      </div>
+      <pre><code>DOCKER_CONFIG=${DOCKER_CONFIG:-$HOME/.docker}
+mkdir -p $DOCKER_CONFIG/cli-plugins
+
+curl -SL https://github.com/docker/compose/releases/latest/download/docker-compose-linux-x86_64 \
+  -o $DOCKER_CONFIG/cli-plugins/docker-compose
+
+chmod +x $DOCKER_CONFIG/cli-plugins/docker-compose</code></pre>
+      <p><strong>설치 확인</strong></p>
+      <pre><code>docker compose version</code></pre>
+    </section>
+
+    <section class="section">
+      <div class="label">3.5</div>
+      <h2>Docker Buildx 설치 (선택)</h2>
+      <p><strong>먼저 설치 여부 확인</strong></p>
+      <pre><code>docker buildx version</code></pre>
+      <p><strong>없으면 설치</strong></p>
+      <pre><code>mkdir -p ~/.docker/cli-plugins
+
+curl -SL https://github.com/docker/buildx/releases/latest/download/buildx-linux-amd64 \
+  -o ~/.docker/cli-plugins/docker-buildx
+
+chmod +x ~/.docker/cli-plugins/docker-buildx</code></pre>
+      <p><strong>설치 확인</strong></p>
+      <pre><code>docker buildx version</code></pre>
+    </section>
+
+    <section class="section">
+      <div class="label">3.6</div>
+      <h2>프로젝트 코드 가져오기</h2>
+      <pre><code>git clone https://github.com/your-repo-url.git
+cd your-repo</code></pre>
+    </section>
+
+    <section class="section">
+      <div class="label">4.1</div>
+      <h2>Docker 이미지 빌드 및 실행</h2>
+      <pre><code>docker compose up --build -d</code></pre>
+      <div class="note">
+        <strong>설명</strong>
+        <ul>
+          <li><code>-d</code> 옵션은 백그라운드 실행입니다.</li>
+          <li>기존 <code>docker-compose</code> 대신 <code>docker compose</code>를 사용합니다.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="label">4.2</div>
+      <h2>실행 상태 확인</h2>
+      <pre><code>docker ps</code></pre>
+      <p><strong>로그 확인</strong></p>
+      <pre><code>docker compose logs -f</code></pre>
+    </section>
+
+    <section class="section">
+      <div class="label">4.3</div>
+      <h2>서비스 접속</h2>
+      <pre><code>http://EC2_PUBLIC_IP:포트번호</code></pre>
+    </section>
+
+    <section class="section">
+      <div class="label">요약</div>
+      <h2>핵심 변경 사항</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>기존 강의안</th>
+            <th>Amazon Linux 2023 수정안</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>yum</code></td>
+            <td><span class="good">dnf</span></td>
+          </tr>
+          <tr>
+            <td><code>service docker start</code></td>
+            <td><span class="good">systemctl enable --now docker</span></td>
+          </tr>
+          <tr>
+            <td><code>docker-compose</code></td>
+            <td><span class="bad">제거</span></td>
+          </tr>
+          <tr>
+            <td><code>docker compose</code></td>
+            <td><span class="good">표준 방식</span></td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="tip">
+        <strong>강의용 한 줄 정리</strong><br>
+        Amazon Linux 2023에서는 <code>dnf</code>, <code>systemctl</code>, <code>docker compose</code> 조합으로 설명하는 것이 가장 자연스럽습니다.
+      </div>
+    </section>
+
+    <p class="footer">Prepared for lecture note revision · Amazon Linux 2023 기준</p>
+  </div>
+</body>
+</html>

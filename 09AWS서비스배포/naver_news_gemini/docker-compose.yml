@@ -1,0 +1,8 @@
+
+services:
+  news-bot:
+    build: .
+    container_name: news-bot
+    ports:
+      - "7860:7860"
+    restart: unless-stopped

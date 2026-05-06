@@ -1,0 +1,322 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Jupyter Notebook 마크다운 문법 강의안</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="header">
+    <div class="container">
+      <span class="badge">Jupyter Notebook · Markdown</span>
+      <h1 class="title">Jupyter Notebook 마크다운 문법 강의안</h1>
+      <p class="subtitle">주피터 노트북의 Markdown 셀에서 자주 쓰는 문법을 예시 중심으로 정리한 문서이다.</p>
+
+      <nav class="toc" aria-label="목차">
+        <a href="#intro">마크다운이란</a>
+        <a href="#cells">셀 전환 & 실행</a>
+        <a href="#headings">제목</a>
+        <a href="#paragraph">문단 & 줄바꿈</a>
+        <a href="#emphasis">강조</a>
+        <a href="#lists">목록</a>
+        <a href="#code">코드</a>
+        <a href="#quote">인용문</a>
+        <a href="#hr">구분선</a>
+        <a href="#links">링크</a>
+        <a href="#images">이미지</a>
+        <a href="#tables">표</a>
+        <a href="#tasks">체크박스</a>
+        <a href="#math">수식(LaTeX)</a>
+        <a href="#patterns">자주 쓰는 작성 패턴</a>
+        <a href="#tips">주의사항</a>
+        <a href="#summary">요약</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+
+    <section class="section" id="intro">
+      <h2>마크다운이란</h2>
+      <div class="card">
+        <p>
+          <strong>마크다운(Markdown)</strong>은 글을 쉽고 빠르게 구조화해서 작성하기 위한 문법이다.
+          Jupyter Notebook에서는 셀을 나눠서 문서와 코드를 분리한다.
+        </p>
+        <ul class="list">
+          <li><strong>Code Cell</strong>은 Python 코드를 실행하는 셀이다.</li>
+          <li><strong>Markdown Cell</strong>은 설명, 제목, 문서 내용을 작성하는 셀이다.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="section" id="cells">
+      <h2>셀 전환 & 실행</h2>
+      <div class="card">
+        <p>마크다운 셀 작성 흐름은 다음과 같다.</p>
+        <ol class="list">
+          <li>셀을 선택한다.</li>
+          <li><code>Esc</code>를 누른 뒤 <code>M</code>을 누르면 Markdown 셀로 바뀐다.</li>
+          <li>내용을 작성한다.</li>
+          <li><code>Shift + Enter</code>로 실행하면 렌더링되어 화면에 표시된다.</li>
+        </ol>
+
+        <div class="note">
+          <strong>단축키</strong> <code>Esc → M</code>은 마크다운 셀 전환, <code>Esc → Y</code>는 코드 셀 전환이다.
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="headings">
+      <h2>제목</h2>
+      <div class="card">
+        <p><code>#</code> 개수에 따라 제목 크기가 달라진다.</p>
+        <pre><code># 제목 1
+## 제목 2
+### 제목 3
+#### 제목 4</code></pre>
+        <div class="note">
+          <strong>팁</strong> 노트북에서 목차를 만들거나 챕터를 나눌 때 가장 많이 쓰는 문법이다.
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="paragraph">
+      <h2>문단 & 줄바꿈</h2>
+      <div class="card">
+        <h3>문단</h3>
+        <p>한 줄을 비우면(빈 줄) 새로운 문단이 된다.</p>
+        <pre><code>이것은 첫 번째 문단이다.
+
+이것은 두 번째 문단이다.</code></pre>
+
+        <h3>줄바꿈</h3>
+        <p>문장 끝에 <strong>공백 2칸</strong>을 넣고 Enter를 누르면 줄바꿈이 된다.</p>
+        <pre><code>첫 줄입니다.␠␠
+두 번째 줄입니다.</code></pre>
+      </div>
+    </section>
+
+    <section class="section" id="emphasis">
+      <h2>강조</h2>
+      <div class="card">
+        <p>굵게, 기울임, 굵고 기울임 표현이 가능하다.</p>
+        <pre><code>**굵은 글씨**
+*기울임 글씨*
+***굵고 기울임***</code></pre>
+      </div>
+    </section>
+
+    <section class="section" id="lists">
+      <h2>목록</h2>
+      <div class="card">
+        <h3>순서 없는 목록</h3>
+        <pre><code>- 사과
+- 바나나
+- 포도</code></pre>
+
+        <h3>순서 있는 목록</h3>
+        <pre><code>1. 데이터 수집
+2. 데이터 전처리
+3. 모델 학습
+4. 결과 분석</code></pre>
+
+        <h3>중첩 목록</h3>
+        <pre><code>- 과일
+  - 사과
+  - 바나나
+- 채소
+  - 당근</code></pre>
+
+        <div class="note">
+          <strong>팁</strong> 중첩 목록은 들여쓰기(스페이스 2~4칸)가 핵심이다.
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="code">
+      <h2>코드</h2>
+      <div class="card">
+        <h3>인라인 코드</h3>
+        <p>문장 중간에 코드를 표시할 때는 백틱 1개를 사용한다.</p>
+        <pre><code>변수는 `x = 10` 처럼 정의한다.</code></pre>
+
+        <h3>코드 블록</h3>
+        <p>여러 줄 코드를 표시할 때는 백틱 3개를 사용한다. 언어 이름을 쓰면 문법 강조가 적용된다.</p>
+        <pre><code>```python
+for i in range(5):
+    print(i)
+```</code></pre>
+
+        <div class="note">
+          <strong>팁</strong> <code>python</code>, <code>sql</code>, <code>bash</code> 같은 언어명을 붙이면 가독성이 좋아진다.
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="quote">
+      <h2>인용문</h2>
+      <div class="card">
+        <p>인용문은 <code>&gt;</code>로 시작한다.</p>
+        <pre><code>&gt; 데이터 분석에서 가장 중요한 것은 질문이다.</code></pre>
+      </div>
+    </section>
+
+    <section class="section" id="hr">
+      <h2>구분선</h2>
+      <div class="card">
+        <p>수평 구분선은 <code>---</code>로 만든다.</p>
+        <pre><code>---</code></pre>
+      </div>
+    </section>
+
+    <section class="section" id="links">
+      <h2>링크</h2>
+      <div class="card">
+        <p>링크는 <code>[텍스트](URL)</code> 형식이다.</p>
+        <pre><code>[구글 바로가기](https://www.google.com)</code></pre>
+      </div>
+    </section>
+
+    <section class="section" id="images">
+      <h2>이미지</h2>
+      <div class="card">
+        <p>이미지는 <code>![대체텍스트](이미지경로)</code> 형식이다.</p>
+        <pre><code>![그래프 예시](plot.png)</code></pre>
+        <div class="note">
+          <strong>팁</strong> 로컬 파일 경로 또는 이미지 URL도 가능하다.
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="tables">
+      <h2>표</h2>
+      <div class="card">
+        <p>표는 <code>|</code>로 칸을 나누고, 헤더 아래에 구분선을 넣는다.</p>
+        <pre><code>| 이름 | 나이 | 전공 |
+|---|---|---|
+| 철수 | 20 | 컴퓨터 |
+| 영희 | 21 | 수학 |</code></pre>
+
+        <h3>정렬</h3>
+        <pre><code>| 왼쪽 | 가운데 | 오른쪽 |
+|:---|:---:|---:|
+| A | B | C |</code></pre>
+      </div>
+    </section>
+
+    <section class="section" id="tasks">
+      <h2>체크박스</h2>
+      <div class="card">
+        <p>체크박스는 <code>- [ ]</code>, 체크 완료는 <code>- [x]</code>이다.</p>
+        <pre><code>- [x] 데이터 수집
+- [ ] 전처리
+- [ ] 모델 학습</code></pre>
+      </div>
+    </section>
+
+    <section class="section" id="math">
+      <h2>수식(LaTeX)</h2>
+      <div class="card">
+        <h3>인라인 수식</h3>
+        <pre><code>$y = ax + b$</code></pre>
+
+        <h3>블록 수식</h3>
+        <pre><code>$$
+\sum_{i=1}^{n} x_i
+$$</code></pre>
+
+        <div class="note">
+          <strong>팁</strong> 통계/머신러닝/선형대수 노트 정리에 특히 유용하다.
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="patterns">
+      <h2>자주 쓰는 작성 패턴</h2>
+      <div class="card">
+        <p>분석 노트 구조를 일정하게 유지하면 읽기 쉬워진다.</p>
+        <pre><code># 데이터 분석 프로젝트
+
+## 1. 문제 정의
+분석 목적을 정의한다.
+
+## 2. 데이터 설명
+데이터 출처와 컬럼을 설명한다.
+
+## 3. 분석 방법
+사용한 방법론을 정리한다.
+
+## 4. 결과
+분석 결과를 요약한다.</code></pre>
+      </div>
+    </section>
+
+    <section class="section" id="tips">
+      <h2>주의사항</h2>
+      <div class="card">
+        <ul class="list">
+          <li>Markdown 셀에서는 Python 코드가 실행되지 않는다.</li>
+          <li>코드 실행은 반드시 Code Cell에서 해야 한다.</li>
+          <li>문서 설명은 Markdown Cell에서 작성하는 것이 좋다.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="section" id="summary">
+      <h2>요약</h2>
+      <div class="card">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>구분</th>
+              <th>문법</th>
+              <th>예시</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>제목</td>
+              <td><code>#</code>, <code>##</code></td>
+              <td><code>## 섹션</code></td>
+            </tr>
+            <tr>
+              <td>강조</td>
+              <td><code>** **</code>, <code>* *</code></td>
+              <td><code>**중요**</code></td>
+            </tr>
+            <tr>
+              <td>목록</td>
+              <td><code>-</code>, <code>1.</code></td>
+              <td><code>- 항목</code></td>
+            </tr>
+            <tr>
+              <td>코드</td>
+              <td><code>` `</code>, <code>``` ```</code></td>
+              <td><code>`x=1`</code></td>
+            </tr>
+            <tr>
+              <td>링크</td>
+              <td><code>[ ]( )</code></td>
+              <td><code>[Google](...)</code></td>
+            </tr>
+            <tr>
+              <td>표</td>
+              <td><code>|</code></td>
+              <td><code>|A|B|</code></td>
+            </tr>
+            <tr>
+              <td>수식</td>
+              <td><code>$ $</code>, <code>$$ $$</code></td>
+              <td><code>$y=ax+b$</code></td>
+            </tr>
+          </tbody>
+        </table>
+
+      </div>
+    </section>
+
+  </main>
+</body>
+</html>

@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ABB EV Charging Technical Analysis Report</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --abb-red: #ff0000;
+            --dark-grey: #333333;
+            --medium-grey: #666666;
+            --light-grey: #f8f9fa;
+            --border-color: #e0e0e0;
+            --text-color: #2c3e50;
+            --accent-blue: #0056b3;
+            --warning-orange: #f57c00;
+        }
+
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            line-height: 1.7;
+            color: var(--text-color);
+            margin: 0;
+            padding: 0;
+            background-color: #f0f2f5;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 40px auto;
+            padding: 40px;
+            background: white;
+            box-shadow: 0 4px 30px rgba(0,0,0,0.08);
+            border-radius: 12px;
+        }
+
+        header {
+            border-bottom: 5px solid var(--abb-red);
+            padding-bottom: 25px;
+            margin-bottom: 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+        }
+
+        .header-title h1 {
+            color: var(--abb-red);
+            margin: 0;
+            font-size: 2.2rem;
+            letter-spacing: -1px;
+        }
+
+        .header-title p {
+            margin: 5px 0 0 0;
+            color: var(--medium-grey);
+            font-weight: 300;
+        }
+
+        .badge {
+            background: var(--dark-grey);
+            color: white;
+            padding: 6px 16px;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            font-weight: bold;
+        }
+
+        section {
+            margin-bottom: 50px;
+        }
+
+        h2 {
+            display: flex;
+            align-items: center;
+            font-size: 1.5rem;
+            color: var(--dark-grey);
+            margin-bottom: 25px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--light-grey);
+        }
+
+        h2::before {
+            content: '';
+            display: inline-block;
+            width: 10px;
+            height: 24px;
+            background: var(--abb-red);
+            margin-right: 12px;
+        }
+
+        h2 a.ref-link {
+            font-size: 0.9rem;
+            margin-left: 15px;
+            color: var(--accent-blue);
+            text-decoration: none;
+            font-weight: normal;
+            border: 1px solid var(--accent-blue);
+            padding: 2px 8px;
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
+
+        h2 a.ref-link:hover {
+            background: var(--accent-blue);
+            color: white;
+        }
+
+        h3 {
+            color: var(--abb-red);
+            font-size: 1.15rem;
+            margin-top: 30px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+        }
+
+        .card {
+            border: 1px solid var(--border-color);
+            padding: 20px;
+            border-radius: 8px;
+            background: #fff;
+            transition: transform 0.2s;
+        }
+
+        .card:hover {
+            border-color: var(--abb-red);
+        }
+
+        .highlight-box {
+            background: var(--light-grey);
+            border-left: 4px solid var(--dark-grey);
+            padding: 20px;
+            margin: 20px 0;
+            font-size: 0.95rem;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            font-size: 0.9rem;
+        }
+
+        th, td {
+            text-align: left;
+            padding: 12px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        th {
+            background-color: var(--light-grey);
+            font-weight: 700;
+            color: var(--dark-grey);
+        }
+
+        .status-tag {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .status-charging { background: #e3f2fd; color: #1976d2; }
+        .status-finishing { background: #fff3e0; color: #f57c00; }
+        .status-available { background: #e8f5e9; color: #388e3c; }
+        .status-fault { background: #ffebee; color: #c62828; }
+        .status-preparing { background: #f3e5f5; color: #7b1fa2; }
+
+        .api-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .api-list li {
+            margin-bottom: 10px;
+            padding-left: 20px;
+            position: relative;
+        }
+
+        .api-list li::before {
+            content: '•';
+            color: var(--abb-red);
+            font-weight: bold;
+            position: absolute;
+            left: 0;
+        }
+
+        .policy-label {
+            font-weight: bold;
+            color: var(--abb-red);
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        footer {
+            text-align: center;
+            font-size: 0.85rem;
+            color: var(--medium-grey);
+            margin-top: 60px;
+            padding-top: 30px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        @media (max-width: 850px) {
+            .grid { grid-template-columns: 1fr; }
+            .container { padding: 20px; margin: 10px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <div class="header-title">
+            <h1>ABB EV Infrastructure Analysis</h1>
+            <p>전기차 충전 하드웨어 및 소프트웨어 통합 연동 기술 분석 보고서</p>
+        </div>
+        <div class="badge">Technical Reference v1.3</div>
+    </header>
+
+    <!-- 1. 기본 기술 영역 -->
+    <section>
+        <h2>1. 기본 기술 영역 (Technical Foundation)</h2>
+        <div class="grid">
+            <div class="card">
+                <h3>테스트 환경 및 에뮬레이터</h3>
+                <ul class="api-list">
+                    <li><strong>원격 모니터링:</strong> ABB Ability™ Charger Care 플랫폼 활용</li>
+                    <li><strong>시뮬레이션:</strong> OCPP 1.6J/2.0.1 표준 시뮬레이터 지원</li>
+                    <li><strong>장비 미보유 테스트:</strong> MicroOCPP 등 오픈소스 도구와 높은 호환성</li>
+                </ul>
+            </div>
+            <div class="card">
+                <h3>통신 및 데이터 흐름</h3>
+                <ul class="api-list">
+                    <li><strong>프로토콜:</strong> OCPP 1.6J (JSON over WebSocket)</li>
+                    <li><strong>인증 보안:</strong> TLS 1.2+ 기반 보안 연결 (WSS)</li>
+                    <li><strong>데이터:</strong> 실시간 MeterValues 및 트랜잭션 로깅</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- 2. 상세 API 및 개발 문서 -->
+    <section>
+        <h2>2. 제조사 API/SDK 및 개발자 도구 
+            <a href="https://library.e.abb.com/public/82e5b122c32a48ffb1aa5120708c0b6b/4EVC901703-BREN_ConnectedServices_11_19.pdf" target="_blank" class="ref-link">
+                [공식 PDF 자료 보기]
+            </a>
+        </h2>
+        <div class="grid">
+            <div class="card">
+                <h3>제공 API 서비스</h3>
+                <ul class="api-list">
+                    <li><strong>OCPP API:</strong> 충전 세션, 가격 정의, 인보이스 처리</li>
+                    <li><strong>Service API (Add-on):</strong> 케이블 연결 상세 및 장애 데이터</li>
+                    <li><strong>Demand Response API:</strong> 전력 부하 원격 제한 제어</li>
+                </ul>
+            </div>
+            <div class="card">
+                <h3>관리용 웹 도구</h3>
+                <ul class="api-list">
+                    <li><strong>Driver Care:</strong> 실시간 상태 맵 및 통계 리포트</li>
+                    <li><strong>Payment Mgmt:</strong> 결제 터미널 설정 및 내역 모니터링</li>
+                    <li><strong>Charger Care:</strong> 기판 레벨 원격 진단 및 보드 리부팅</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- 3. 사용자 시나리오 및 APP 표기 정책 -->
+    <section>
+        <h2>3. 사용자 시나리오 및 APP 표기 정책</h2>
+        
+        <h3>3.1 단계별 APP 상태 표기 기준</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>단계</th>
+                    <th>OCPP 상태값</th>
+                    <th>APP 노출 텍스트 (권장)</th>
+                    <th>사용자 가이드 알림</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>대기</td>
+                    <td><span class="status-tag status-available">Available</span></td>
+                    <td><strong>충전 가능</strong></td>
+                    <td>"QR 코드를 스캔하여 충전을 시작하세요."</td>
+                </tr>
+                <tr>
+                    <td>연결/인증</td>
+                    <td><span class="status-tag status-preparing">Preparing</span></td>
+                    <td><strong>연결 및 인증 중</strong></td>
+                    <td>"차량과 통신 중입니다. 잠시만 기다려주세요."</td>
+                </tr>
+                <tr>
+                    <td>충전 중</td>
+                    <td><span class="status-tag status-charging">Charging</span></td>
+                    <td><strong>충전 중 (n%)</strong></td>
+                    <td>실시간 출력(kW), 충전량(kWh), 경과시간 표시</td>
+                </tr>
+                <tr>
+                    <td>충전 종료</td>
+                    <td><span class="status-tag status-finishing">Finishing</span></td>
+                    <td><strong>충전 완료</strong></td>
+                    <td>"충전이 완료되었습니다. 커넥터를 분리해 주세요."</td>
+                </tr>
+                <tr>
+                    <td>유휴 상태</td>
+                    <td><span class="status-tag status-finishing">Finishing</span></td>
+                    <td><strong>유휴 상태 (점유 중)</strong></td>
+                    <td>"미분리 시 유휴 요금이 발생할 수 있습니다." (타이머 노출)</td>
+                </tr>
+                <tr>
+                    <td>장애</td>
+                    <td><span class="status-tag status-fault">Faulted</span></td>
+                    <td><strong>점검 중</strong></td>
+                    <td>"현재 이용이 불가합니다. 인근 충전소를 이용해 주세요."</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="grid">
+            <div class="card">
+                <h3>3.2 유휴 요금(Idle Fee) 정책</h3>
+                <span class="policy-label">판단 기준</span>
+                <p style="font-size: 0.9rem; margin-bottom: 10px;">Status가 Finishing 또는 SuspendedEV이나 커넥터가 분리되지 않은 상태</p>
+                <span class="policy-label">APP UI 정책</span>
+                <ul class="api-list" style="font-size: 0.9rem;">
+                    <li>완료 후 경과 시간 실시간 카운트 다운 노출</li>
+                    <li>푸시 알림: 완료 직후, 유휴 요금 발생 5분 전 전송</li>
+                    <li>요금 산식: (분리 시점 - 완료 시점) - 유예 시간 기반 정산</li>
+                </ul>
+            </div>
+            <div class="card">
+                <h3>3.3 커넥터 Lock/Unlock 시나리오</h3>
+                <span class="policy-label">Lock 동작</span>
+                <p style="font-size: 0.9rem; margin-bottom: 10px;">충전 시작(StartTransaction) 시 물리적 잠금 수행</p>
+                <span class="policy-label">Unlock 요청 UI</span>
+                <ul class="api-list" style="font-size: 0.9rem;">
+                    <li>상세 페이지 내 [커넥터 잠금 해제 요청] 버튼 배치</li>
+                    <li>해제 실패 시 가이드: "차량 도어 잠금을 해제해 주세요"</li>
+                    <li>비상 상황 시 원격 UnlockConnector 명령 연동</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- 4. 가이드 및 레퍼런스 -->
+    <section>
+        <h2>4. 운영 가이드 및 제약사항</h2>
+        <div class="card">
+            <ul class="api-list">
+                <li><strong>통신 안정성:</strong> 지하 주차장 설치 시 LTE 수신 불량 대비 이더넷 유선 연결 필수</li>
+                <li><strong>부하 관리:</strong> ABB 전용 Demand Response API를 통한 사이트별 총 전력량 제한 설정 가능</li>
+                <li><strong>UX 표준:</strong> ISO 15118(Plug & Charge) 기반의 심플하고 직관적인 인터페이스 지향</li>
+            </ul>
+        </div>
+    </section>
+
+    <footer>
+        &copy; 2024 Project EV-Service Integration. Based on ABB Technical Documentation.
+    </footer>
+</div>
+
+</body>
+</html>

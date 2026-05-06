@@ -1,0 +1,253 @@
+1. docker 기본 명령어 (container 관련)
+
+1) docker 이미지 다운로드 하기
+  - docker run --name <컨테이너 명> -d -p 외부포트:내부포트  이미지명
+  - docker run --name apa000ex2 -d  -p 8081:80 httpd   
+  - docker run --name nginx000ex3 -d  -p 8082:80 nginx
+
+2) docker container 작동 확인하기 
+  - docker ps
+  - docker ps -a : 정지된 container도 출력
+
+3) 웹서버 작동 확인하기
+  - http://localhost:8081
+  - http://localhost:8082
+
+4) 도커 컨테이너 정지시키기
+  - docker stop <컨테이너 명>
+  - docker stop apa000ex2
+  - docker stop nginx000ex3
+  -sudo docker stop $(sudo docker ps -a -q)  모든 도커 컨테이너 정지 시키기
+
+5) 도커 컨테이너 삭제하기 
+  - docker rm apa000ex2
+  - docker rm nginx000ex3
+
+6) 삭제 확인
+   - docker ps -a
+
+7) docker system events
+   - 도커 컨테이너에 관한 이벤트를 보고 싶을 때(도커 컨테이너가 실행되고 있을 때만 보임)
+
+8) hub.docker.com 도커 이미지 사이트
+
+
+2. mysql container 설치하기 - password와 내부 파일 조작 옵션 넣기
+   - docker run --name mysql000ex4 -dit -e MYSQL_ROOT_PASSWORD=myrootpass mysql
+      -dit : 백그라운드에서 실행 및 키보드를 통해 컨테이너 내부의 파일 시스템 조작
+      -e MYSQL_ROOT_PASSWORD= MySQL 루트 패스워드 지정
+
+3. docker image 조회 및 삭제하기
+
+1) docker image 조회하기 
+  - docker image ls
+
+2) docker image 삭제하기 ( image를 사용하는 container가 없어야만 삭제 가능)
+  - docker image rm <이미지 이름>
+  - docker image rm nginx
+  - docker image rm httpd
+  - docker image rm mysql
+
+3) 사용되고 있지 않은 모든 이미지 삭제
+  - docker image prune -a
+
+4. docker 네트워트 관련 명령어
+1) 도커 네트워크 생성
+  - docker network create 네트워크 이름
+
+2) 도커 네트워크 삭제
+  - docker network rm 네트워크 이름
+
+3) 주요 명령어
+   - connect: 네트워크에 컨테이너를 새로이 접속
+   - disconnect: 네트워크에서 컨테이너의 접속을 끊음
+   - create 네트워크를 생성
+   - inspect 네터워크의 상세 정보를 확인
+   - ls  네트워크의 목록을 확인
+   - prune 현재 아무 컨터이너도 접속하지 않은 네트워크를 모두 삭제
+   - rm 지정한 네트워크를 삭제
+
+4) 도커 네트워크 생성
+   - docker network create wordpress000net1
+
+5) mysql 컨테이너 생성
+    - docker run --name mysql000ex11 -dit --net=wordpress000net1 -e MYSQL_ROOT_PASSWORD=myrootpass -e MYSQL_DATABASE=wordpress000db -e MYSQL_USER=wordpress000kun -e MYSQL_PASSWORD=wkunpass mysql --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci --default-authentication-plugin=mysql_native_password
+
+6) wordpress 컨테이너 생성 
+    - docker run --name wordpress000ex12 -dit --net=wordpress000net1 -p 8085:80 -e WORDPRESS_DB_HOST=mysql000ex11 -e WORDPRESS_DB_NAME=wordpress000db -e WORDPRESS_DB_USER=wordpress000kun -e WORDPRESS_DB_PASSWORD=wkunpass wordpress
+
+5. docker container간 파일 복사하기 (* 호스트: 도커 엔진을 실행하는 컴퓨터)
+1) 컨테이너로 파일을 복사하는 커맨드(호스트 -> 컨테이너)
+   - docker cp 호스트 경로 컨테이너 이름: 컨테이너 경로
+   - 
+2) 호스트로 파일을 복사하는 커맨드(컨테이너 -> 호스트)
+   - docker cp 컨테이너 이름: 컨테이너 경로 호스트 경로 
+   - 
+
+3) 파일 복사 명령어
+   - docker cp 원본_경로 복사할 경로
+   - 
+
+4) index.html 생성 후 아파치 container로 복사하기 
+   - index.html 생성
+   - docker run --name apa000ex19 -d -p 8089:80 httpd
+   - 웹브라우저에서 http://localhost:8089로 접속해 It works! 출력 되는 것 확인
+   - docker cp index.html 파일경로 apa000ex19:/usr/local/apache2/htdocs/
+   - 웹브라우저에서 http://localhost:8089로 접속해 "안녕하세요" 출력 되는 것 확인
+
+5) 윈도우에서 파일명 변경하기(index.html -> index.html2)
+   - copy ./index.html ./index2.html
+   - del index.html
+   - docker cp apa000ex19:/usr/local/apache2/htdocs/index.html  ./index.html
+   - dir/w 로 index.html, index2.html이 모두 있는 지 확인
+
+
+6. 볼륨 마운트 * 추천
+1) 도커 엔진이 관리하는 영역 내에 만들어진 볼륨을 컨테이너에 디스크 형태로 마운트 
+  - 이르만으로 관리가 가능하므로 다루기 쉽지만 직접 조작하기 어려움
+  - 임시 목적의 사용이나 자주 쓰지는 않지만 지우면 안 되는 파일을 두는 목적으로 사용
+
+2) 볼륨 관련 명령어
+   - docker volume create 볼륨명 : 생성
+   - docker volume inspect 볼륨명 : 볼륨 상세정보 출력
+   - docker volume ls 볼륨명 : 볼륨의 목록을 출력
+   - docker volume prune 볼륨명 : 현재 마운트 되지 않은 볼륨을 모두 삭제
+   - docker volume rm 볼륨명 : 지정한 볼륨을 삭제
+
+3) 볼륨 생성(볼륨 마운트)
+  - docker volume create 볼륨이름
+  - docker volume create test_volume
+
+4) 볼륨 삭제(볼륨 마운트)
+  - docker volume rm 볼륨이름
+  - docker volume rm test_volume
+
+7. 바인드 마운트 (파일을 직접 편집해야 할 일이 많을 때)
+1) 도커가 설치된 컴퓨터의 문서 폴더 또는 바탕화면 폴더 등 도커 엔진에서 관리하지 않는 영역의 기존 디렉토리를 컨테이너에 마운트 하는 방식
+  - 파일 단위도 가능
+  - 자주 사용하는 파일을 두는데 사용
+
+8. 스토리지를 마운트하는 커맨드
+1) 바인드 마운트
+   - docker run (생략) -v 스토리지 실제 경로: 컨테이너 마운트 경로
+
+9. c:\Users\사용자명 아래 apa_folder를 만들고 마운트 하기
+ 1) c:\Users\HSM> 에 apa_folder 만들기 
+    - mkdir apa_folder
+ 2) 아파치 서버 컨테이너를 실행 하면서 apa_folder 마운트
+   - docker run --name apa000ex20 -d -p 8090:80 -v c:\Users\HSM\apa_folder:/usr/local/apache2/htdocs httpd
+ 3) 웹브라우저에서 localhost:8090에 접속해 index of/ 출력 확인
+ 3) apa_folder에 index.html 파일 복사
+ 4) 웹브라우저에서 localhost:8090에 접속해 새로고침 후 "안녕하세요" 출력 확인
+   
+10. 볼륨 마운트 하기
+1) 볼륨 생성
+   - docker volume create apa000vol1
+   - docker run --name apa000ex21 -d -p 8091:80 -v apa000
+vol1:/usr/local/apache2/htdocs httpd
+   - docker volume inspect apa000vol21 로 볼륨 확인하기
+   - docker container inspect apa000ex21에서 Mounts 부분 확인하기
+
+11. dockerfile 스크립트로 이미지 만들기
+1) dockerfile 스크립트를 작성하고 빌드해 이미지를 만드는 방법
+2) 이미지를 만드는 작업만 가능
+3) docker build -t 생성할 이미지 이름   재료 폴더 경로
+4) FROM 이미지이름 뒤에 명령어를 추가해 컨테이너를 대상으로 할 일 기술
+5) 명령어 
+  - FROM          토대가 되는 이미지를 지정
+  - ADD            이미지에 파일이나 폴더를 추가
+  - COPY           이미지에 파일이나 폴더를 추가
+  - RUN             이미지를 빌드할 때 실행할 명령어를 지정
+  - CMD             컨테이너를 실행할 때 실행할 명령어를 지정
+  - ENTRYPOINT  컨테이너를 실행할 때 실행할 명령어를 강제 지정
+  - ONBUILD       이 이미지를 기반으로 다른 이미지를 빌디할 때 실행할 명령어를 지정
+  - EXPOSE          이미지가 통시네 사용할 포트를 명시적으로 지정
+  - VOLUME       퍼시스턴시 데이터를 저장할 경로를 명시적으로 지정
+  - ENV              환경변수를 정의
+  - WORKDIR      RUN, CMD, ENTRYPOINT, ADD, COPY에 정의된 명령어를 실행하는 작업 디렉토리 지정
+  - SHELL           빌드시 사용할 셀을 변경
+  - LABEL           이름이나 버전, 저작자 정보를 설정
+  - USER             RUN, CMD, ENTRYPOINT, ADD, COPY에 정의된 명령어를 실행하는사용자 또는 그룹을 지정
+  - ARG              docker build 커맨드를 사용할 때 입력받을 수 있는 인자를 선언
+  - STOPSIGNAL   docker stop 커맨드를 사용할 때 컨테이너 안에서 실행 중인 프로그램에 전달되는 시그널을 변경
+  - HEALTHCHECK 컨테이너 헬스체크 방법을 커스터마이징
+
+
+12. 도커 컴포즈
+1) 도커 시스템 구축과 관련된 명령어를 하나의 YAML 파일에 기재해 명령어 한번에 시스템 전체를 실행하고 종료와 폐기까지 한번에 하도록 도와주는 도구
+
+2) up 커맨드 - docker run과 비슷. 정의 파일에 기재된 내용대로 이미지를 내려받고 컨테이너를 생성 및 실행
+
+3) down 커맨드 - 컨테이너와 네트워크를 정지 및 삭제한다. 볼륨과 이미지는 삭제하지 않는다.
+
+4) 도커 컴포즈 VS 도커 명령어
+-------------------------------------------------
+version: '3'
+
+services:
+  apa000ex2:
+      image: httpd
+      ports:
+        - 8080:80
+      restart: always
+----------------------------------------------------
+docker run --name apa000ex2 -d -p 8080:80 httpd
+
+5) 도커 컴포즈 YAML 의 주 항목
+  - version
+  - services: 컨테이너를 정의
+  - networks: 네트워크를 정의
+  - ports: 포트 설정
+  - volumes: 볼륨을 정의
+  - depends_on:  다른 서비스에 대한 의존 관계를 정의
+  - environment: 환경변수 설정 
+  - env_file: 환경 설정 정보를 기재한 파일을 로드
+  - command: 컨테이너 시작시 기존 커맨드를 오버라이드
+
+
+6) YAML 파일 작성시 주의할 점
+  - YAML 형식에서는 공백에 따라 의미가 달라짐(줄 맞춤 중요)
+  - 들여쓰기 기준은 공백 2칸
+  - 이름 뒤에 반드시 콜론(:)을 붙이고 공백 1칸이 필수 임.
+  - 주석은 #
+
+7) dcoker-compose  up 옵션(컨테이너와 볼륨, 네트워크를 생성하고 실행)
+  - -d                               백그라운드로 실행
+  - --no-color                    화면 내용 출력을 흑백으로 함
+  - --no-deps                     링크된 서비스를 실행하지 않음
+  - --force-recreate              설정 또는 이미지가 변경되지 않더라도 컨테이너를 재생성
+  - --no-create                    컨테이너가 이미 존재할 경우 다시 생성하지 않음
+  - --no-build                     이미지가 없어도 이미지를 빌드하지 않음
+  - --build                          컨테이너를 실행하기 전에 이미지를 빌드
+  - --abort-on-container-exit  컨터이너가 하나라도 종료되면 모든 컨테이너를 종료
+  - -t, --timeout                   컨테이너를 종료할 때의 타임아웃 설정, 기본은 10초
+  - --remove-orphans           컴포즈 파일에 정의되지 않은 서비스의 컨테이너를 삭제
+  - --scale                           컨테이너의 수를 변경  
+
+8) docker-compose down 옵션 (컨테이너와 네트워크를 종료 및 삭제, 볼륨과 이미지는 삭제 되지 않음)
+  - --rmi all, local               삭제시에 이미지도 삭제한다. all: 모든 이미지, local: 커스텀 태그가 없는 이미지만 삭제
+  - -v, --volumes                 volumes 항목에 기재된 볼륨을 삭제, 단 external로 지정된 볼륨음 삭제되지 않음.
+  - --remove-orphans          컴포즈 파일에 정의되지 않은 서비스의 컨테이너도 삭제
+
+9) docker-compose stop (컨테이너를 종료)
+
+10) 주요 커맨드 목록
+  - up 컨테이너를 생성하고 실행한다.
+  - down 컨테이너아 네트워크를 종료하고 삭제한다.
+  - ps  컨테이너 목록을 출력한다.
+  - config 컴포즈 파일을 확인하고 내용을 출력한다.
+  - port 포트 설정 내용을 출력한다.
+  - logs 컨테이너가 출력한 내용을 화면에 출력한다.
+  - start 컨테이너를 시작한다.
+  - strop 컨테이너를 종료한다.
+  - kill 컨테이너를 강제 종료한다.
+  - exec 명령어를 실행한다.
+  - run 컨테이너를 실행한다.
+
+
+
+
+
+
+
+

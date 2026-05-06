@@ -1,0 +1,21 @@
+# deep_face.txt
+# 권장 환경: Python 3.11
+# 생성 예시:
+#   conda create -n deepface_py311 python=3.11 -y
+#   conda activate deepface_py311
+# 설치:
+#   pip install -r deep_face.txt
+
+pip>=25.0
+setuptools>=75.0
+wheel>=0.45
+
+numpy<2.0
+pandas>=2.2
+opencv-python>=4.8
+tensorflow[and-cuda]==2.20.0
+tf-keras==2.20.0
+deepface==0.0.99
+gradio==6.9.0
+ipykernel>=6.29
+notebook==6

@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Docker 실습 강의안 - TensorFlow Docker + WordPress & MySQL Compose</title>
+  <style>
+    :root{
+      --bg:#f6f8fb;
+      --paper:#ffffff;
+      --ink:#1f2937;
+      --muted:#6b7280;
+      --line:#e5e7eb;
+      --brand:#2563eb;
+      --brand-soft:#dbeafe;
+      --accent:#0f172a;
+      --code:#0f172a;
+      --code-bg:#f3f4f6;
+      --good:#ecfdf5;
+      --warn:#fff7ed;
+    }
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{
+      margin:0;
+      font-family:"Pretendard","Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+      color:var(--ink);
+      background:linear-gradient(180deg,#eaf2ff 0%, #f6f8fb 220px, #f6f8fb 100%);
+      line-height:1.75;
+    }
+    .wrap{max-width:1200px;margin:0 auto;padding:28px 20px 80px}
+    .hero{
+      background:linear-gradient(135deg,#1d4ed8,#3b82f6 55%,#60a5fa);
+      color:#fff;padding:38px 34px;border-radius:28px;
+      box-shadow:0 20px 50px rgba(37,99,235,.18);
+    }
+    .hero h1{margin:0 0 10px;font-size:2.2rem;line-height:1.25}
+    .hero p{margin:8px 0 0;color:rgba(255,255,255,.94)}
+    .badge{display:inline-block;padding:6px 12px;border-radius:999px;background:rgba(255,255,255,.16);font-size:.92rem;margin-bottom:14px}
+    .toc{
+      margin-top:22px;background:var(--paper);border:1px solid var(--line);border-radius:22px;
+      padding:18px 20px;box-shadow:0 12px 28px rgba(15,23,42,.05)
+    }
+    .toc h2{margin:0 0 10px;font-size:1.02rem}
+    .toc ul{display:flex;gap:10px;flex-wrap:wrap;list-style:none;margin:0;padding:0}
+    .toc li{margin:0}
+    .toc a{
+      display:inline-block;text-decoration:none;padding:8px 14px;border-radius:999px;
+      background:#f1f5f9;color:#334155;font-size:.93rem
+    }
+    .toc a:hover{background:var(--brand);color:#fff}
+    .content{margin-top:24px;display:flex;flex-direction:column;gap:22px}
+    section{
+      background:var(--paper);border:1px solid var(--line);border-radius:24px;padding:28px;
+      box-shadow:0 12px 28px rgba(15,23,42,.04)
+    }
+    h2{margin:0 0 12px;font-size:1.7rem}
+    h3{margin:22px 0 10px;font-size:1.16rem}
+    h4{margin:18px 0 8px;font-size:1rem}
+    p{margin:10px 0}
+    ul,ol{margin:10px 0 10px 22px}
+    li{margin:6px 0}
+    .lead{font-size:1.03rem;color:#334155}
+    .mini{color:var(--muted);font-size:.95rem}
+    .callout{
+      border-left:5px solid var(--brand);background:#f8fbff;padding:14px 16px;border-radius:14px;margin:14px 0;
+    }
+    .warn{border-left-color:#f59e0b;background:var(--warn)}
+    .good{border-left-color:#10b981;background:var(--good)}
+    pre{
+      margin:12px 0;padding:16px 18px;border-radius:16px;background:var(--code);color:#f8fafc;
+      overflow:auto;font-size:.95rem;line-height:1.58
+    }
+    code{font-family:Consolas,Monaco,monospace}
+    .inline{background:var(--code-bg);padding:2px 8px;border-radius:8px}
+    table{width:100%;border-collapse:collapse;margin:14px 0}
+    th,td{border:1px solid var(--line);padding:12px 14px;text-align:left;vertical-align:top}
+    th{background:#f8fafc}
+    .check li{list-style:"✅  "}
+    .footer{margin-top:18px;color:var(--muted);font-size:.92rem;text-align:center}
+    @media (max-width:920px){
+      .hero h1{font-size:1.85rem}
+      section{padding:22px}
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header class="hero">
+      <div class="badge">실습형 HTML 강의안 · 수정본</div>
+      <h1>Docker 명령어 실습 강의안</h1>
+      <p>이 강의안은 기존 자료를 바탕으로 실습 예제를 다시 구성한 버전입니다. <strong>명령어 연습 파트는 TensorFlow GPU Jupyter 컨테이너</strong>를 중심으로 바꾸고, <strong>Compose 연습은 WordPress + MySQL 블로그 구축</strong> 예제로 다시 작성했습니다.</p>
+      <p><strong>환경 반영:</strong> 현재 로컬 PC에서 MySQL 서버가 이미 <strong>3306 포트</strong>를 사용 중이므로, Compose 예제에서는 <strong>DB 컨테이너 포트를 외부에 공개하지 않거나</strong>, 확인용으로 공개할 때는 <strong>3307:3306</strong>을 사용하도록 구성했습니다.</p>
+    </header>
+
+    <nav class="toc">
+      <h2>목차</h2>
+      <ul>
+        <li><a href="#intro">1. 실습 개요와 준비</a></li>
+        <li><a href="#container-basic">2. 컨테이너 기본 명령어</a></li>
+        <li><a href="#tensorflow">3. TensorFlow Docker 실습</a></li>
+        <li><a href="#image">4. 이미지 관리</a></li>
+        <li><a href="#network">5. 네트워크 실습</a></li>
+        <li><a href="#copy">6. 파일 복사 실습</a></li>
+        <li><a href="#volume">7. 볼륨 마운트</a></li>
+        <li><a href="#bind">8. 바인드 마운트</a></li>
+        <li><a href="#dockerfile">9. Dockerfile</a></li>
+        <li><a href="#compose">10. Docker Compose</a></li>
+        <li><a href="#summary">11. 최종 정리</a></li>
+      </ul>
+    </nav>
+
+    <main class="content">
+      <section id="intro">
+        <h2>1. 실습 개요와 준비</h2>
+        <p class="lead">이번 실습은 Docker의 핵심 명령을 손으로 직접 연습하는 데 목적이 있습니다. 특히 GPU 이미지를 pull 하고, 컨테이너를 띄우고, 포트를 매핑하고, 로그와 상태를 확인하는 흐름을 <strong>TensorFlow Jupyter 컨테이너</strong>로 익히게 됩니다.</p>
+        <div class="callout">
+          <strong>실습 목표</strong><br>
+          ① Docker 기본 명령어 익히기<br>
+          ② TensorFlow GPU Jupyter 이미지를 받아 컨테이너 실행하기<br>
+          ③ 이미지·컨테이너·네트워크·볼륨·파일 복사를 직접 연습하기<br>
+          ④ Docker Compose로 WordPress + MySQL 블로그 환경을 구축하기
+        </div>
+
+        <h3>실습 환경</h3>
+        <ul>
+          <li>Windows + Docker Desktop 또는 Ubuntu/Linux + Docker Engine</li>
+          <li>NVIDIA GPU 사용 가능 환경이면 TensorFlow GPU 컨테이너 실습에 더 적합</li>
+          <li>웹브라우저, 터미널 또는 PowerShell</li>
+        </ul>
+
+        <h3>사전 확인</h3>
+        <pre><code>docker --version
+docker compose version</code></pre>
+
+        <p class="mini">구버전 환경은 <span class="inline">docker-compose</span> 명령을 사용할 수 있습니다. 최신 환경은 보통 <span class="inline">docker compose</span> 형식입니다.</p>
+
+        <table>
+          <tr><th>개념</th><th>비유</th><th>설명</th></tr>
+          <tr><td>이미지</td><td>설치 파일 / 설계도</td><td>컨테이너를 만들기 위한 재료</td></tr>
+          <tr><td>컨테이너</td><td>실행 중인 프로그램</td><td>이미지로부터 실제 실행된 인스턴스</td></tr>
+          <tr><td>볼륨</td><td>외장 저장 공간</td><td>컨테이너를 지워도 데이터 보관 가능</td></tr>
+          <tr><td>바인드 마운트</td><td>내 폴더 바로 연결</td><td>호스트 폴더를 컨테이너와 직접 연결</td></tr>
+          <tr><td>포트 매핑</td><td>건물 호수 연결</td><td>호스트 포트와 컨테이너 포트를 연결해 외부에서 접속 가능</td></tr>
+        </table>
+      </section>
+
+      <section id="container-basic">
+        <h2>2. 컨테이너 기본 명령어</h2>
+        <p>먼저 아주 간단한 웹서버 컨테이너를 띄우며 <span class="inline">docker run</span>, <span class="inline">docker ps</span>, <span class="inline">docker stop</span>, <span class="inline">docker rm</span> 을 익힙니다. 이 단계는 뒤의 TensorFlow 컨테이너 실습을 위한 워밍업입니다.</p>
+
+        <h3>2-1. Apache와 Nginx 실행</h3>
+        <pre><code>docker run --name apa000ex2 -d -p 8081:80 httpd
+docker run --name nginx000ex3 -d -p 8082:80 nginx</code></pre>
+
+        <h3>2-2. 실행 중인 컨테이너 확인</h3>
+        <pre><code>docker ps
+docker ps -a</code></pre>
+
+        <h3>2-3. 웹브라우저 확인</h3>
+        <ul>
+          <li><span class="inline">http://localhost:8081</span> → Apache 기본 페이지</li>
+          <li><span class="inline">http://localhost:8082</span> → Nginx 기본 페이지</li>
+        </ul>
+
+        <h3>2-4. 컨테이너 정지와 삭제</h3>
+        <pre><code>docker stop apa000ex2
+docker stop nginx000ex3
+
+docker rm apa000ex2
+docker rm nginx000ex3
+docker ps -a</code></pre>
+
+        <h3>2-5. 이벤트 보기</h3>
+        <pre><code>docker system events</code></pre>
+
+        <div class="callout good">
+          <strong>실습 체크:</strong> 컨테이너를 하나 다시 띄운 뒤, 다른 터미널에서 <span class="inline">docker system events</span> 를 켜놓고 stop / rm 이벤트가 어떻게 찍히는지 확인해 보세요.
+        </div>
+      </section>
+
+      <section id="tensorflow">
+        <h2>3. TensorFlow Docker 실습</h2>
+        <p>기존 강의안의 데이터베이스 예제 대신, 이 파트는 사용자가 요청한 대로 <strong>TensorFlow GPU Jupyter 이미지</strong>를 기준으로 Docker 명령을 연습하도록 재구성한 부분입니다.</p>
+
+        <div class="callout warn">
+          <strong>주의:</strong> 이 이미지는 GPU 지원용입니다. GPU 환경이 준비되지 않았다면 컨테이너가 실행되지 않거나 GPU를 인식하지 못할 수 있습니다. 그래도 <strong>pull / images / run / ps / logs / exec / stop / rm</strong> 같은 Docker 명령어 연습 자체는 매우 유용합니다.
+        </div>
+
+        <h3>3-1. 이미지 다운로드</h3>
+        <pre><code>docker pull tensorflow/tensorflow:latest-gpu-jupyter</code></pre>
+
+        <h3>3-2. 다운로드된 이미지 확인</h3>
+        <pre><code>docker image ls
+docker image ls tensorflow/tensorflow</code></pre>
+
+        <h3>3-3. TensorFlow Jupyter 컨테이너 실행</h3>
+        <p>Jupyter 기본 포트는 컨테이너 내부에서 8888입니다. 호스트에서는 충돌을 피하기 위해 8890 포트로 연결합니다.</p>
+        <pre><code>docker run --name tf-gpu-jupyter -d \
+  -p 8890:8888 \
+  --gpus all \
+  tensorflow/tensorflow:latest-gpu-jupyter</code></pre>
+
+        <h3>3-4. 실행 상태 확인</h3>
+        <pre><code>docker ps
+docker ps -a
+docker logs tf-gpu-jupyter</code></pre>
+
+        <p>로그에 Jupyter 접속 URL과 토큰이 표시됩니다. 브라우저에서 <span class="inline">http://localhost:8890</span> 으로 접속해 확인합니다.</p>
+
+        <h3>3-5. 컨테이너 내부 진입</h3>
+        <pre><code>docker exec -it tf-gpu-jupyter /bin/bash</code></pre>
+
+        <h3>3-6. 컨테이너 내부에서 TensorFlow 확인</h3>
+        <pre><code>python -c "import tensorflow as tf; print(tf.__version__)"
+python -c "import tensorflow as tf; print(tf.config.list_physical_devices('GPU'))"</code></pre>
+
+        <h3>3-7. 정지와 재시작</h3>
+        <pre><code>docker stop tf-gpu-jupyter
+docker start tf-gpu-jupyter</code></pre>
+
+        <h3>3-8. 삭제</h3>
+        <pre><code>docker rm -f tf-gpu-jupyter</code></pre>
+
+        <div class="callout good">
+          <strong>실습 과제:</strong> 같은 이미지를 이용해 컨테이너 이름을 바꿔 하나 더 실행해 보고, 포트를 <span class="inline">8891:8888</span> 로 바꿨을 때 두 개의 Jupyter 컨테이너를 동시에 띄울 수 있는지 확인해 보세요.
+        </div>
+      </section>
+
+      <section id="image">
+        <h2>4. 이미지 관리</h2>
+
+        <h3>4-1. 이미지 목록 확인</h3>
+        <pre><code>docker image ls</code></pre>
+
+        <h3>4-2. 특정 이미지 삭제 예시</h3>
+        <pre><code>docker image rm nginx
+docker image rm httpd
+docker image rm tensorflow/tensorflow:latest-gpu-jupyter</code></pre>
+
+        <p>이미지를 사용하는 컨테이너가 남아 있으면 삭제되지 않습니다. 먼저 컨테이너를 stop 또는 rm 해야 합니다.</p>
+
+        <h3>4-3. 사용하지 않는 이미지 정리</h3>
+        <pre><code>docker image prune -a</code></pre>
+      </section>
+
+      <section id="network">
+        <h2>5. 네트워크 실습</h2>
+
+        <h3>5-1. 네트워크 생성</h3>
+        <pre><code>docker network create blog-net
+docker network ls</code></pre>
+
+        <h3>5-2. 네트워크 주요 명령어</h3>
+        <table>
+          <tr><th>명령어</th><th>설명</th></tr>
+          <tr><td>create</td><td>네트워크 생성</td></tr>
+          <tr><td>ls</td><td>네트워크 목록 보기</td></tr>
+          <tr><td>inspect</td><td>상세 정보 보기</td></tr>
+          <tr><td>connect</td><td>컨테이너 연결</td></tr>
+          <tr><td>disconnect</td><td>컨테이너 연결 해제</td></tr>
+          <tr><td>prune</td><td>사용되지 않는 네트워크 삭제</td></tr>
+          <tr><td>rm</td><td>네트워크 삭제</td></tr>
+        </table>
+
+        <h3>5-3. 네트워크 확인</h3>
+        <pre><code>docker network inspect blog-net</code></pre>
+      </section>
+
+      <section id="copy">
+        <h2>6. 파일 복사 실습</h2>
+
+        <h3>6-1. Apache 테스트 컨테이너 실행</h3>
+        <pre><code>docker run --name apa000ex19 -d -p 8089:80 httpd</code></pre>
+
+        <p>브라우저에서 <span class="inline">http://localhost:8089</span> 에 접속해 <strong>It works!</strong> 가 보이는지 확인합니다.</p>
+
+        <h3>6-2. 새 index.html 작성 후 복사</h3>
+        <pre><code>docker cp ./index.html apa000ex19:/usr/local/apache2/htdocs/</code></pre>
+
+        <h3>6-3. 컨테이너에서 다시 파일 꺼내기</h3>
+        <pre><code># Windows 예시
+copy .\index.html .\index2.html
+del index.html
+docker cp apa000ex19:/usr/local/apache2/htdocs/index.html ./index.html
+dir /w</code></pre>
+      </section>
+
+      <section id="volume">
+        <h2>7. 볼륨 마운트</h2>
+
+        <h3>7-1. 볼륨 기본 명령어</h3>
+        <pre><code>docker volume create test_volume
+docker volume inspect test_volume
+docker volume ls
+docker volume rm test_volume
+docker volume prune</code></pre>
+
+        <h3>7-2. TensorFlow 노트북 저장용 볼륨 예시</h3>
+        <p>Jupyter 노트북 파일을 컨테이너 삭제 후에도 유지하려면 볼륨을 연결할 수 있습니다.</p>
+        <pre><code>docker volume create tf_notebooks
+
+docker run --name tf-gpu-jupyter -d \
+  -p 8890:8888 \
+  --gpus all \
+  -v tf_notebooks:/tf/notebooks \
+  tensorflow/tensorflow:latest-gpu-jupyter</code></pre>
+
+        <h3>7-3. 확인</h3>
+        <pre><code>docker volume inspect tf_notebooks
+docker container inspect tf-gpu-jupyter</code></pre>
+      </section>
+
+      <section id="bind">
+        <h2>8. 바인드 마운트</h2>
+
+        <h3>8-1. 기본 문법</h3>
+        <pre><code>docker run -v 호스트실제경로:컨테이너경로 이미지명</code></pre>
+
+        <h3>8-2. TensorFlow 노트북 폴더 연결 예시</h3>
+        <pre><code># Linux / WSL 예시
+mkdir -p ~/tf_work
+
+docker run --name tf-gpu-bind -d \
+  -p 8891:8888 \
+  --gpus all \
+  -v ~/tf_work:/tf/notebooks \
+  tensorflow/tensorflow:latest-gpu-jupyter</code></pre>
+
+        <table>
+          <tr><th>구분</th><th>볼륨 마운트</th><th>바인드 마운트</th></tr>
+          <tr><td>저장 위치</td><td>Docker 관리 영역</td><td>호스트 실제 폴더</td></tr>
+          <tr><td>직접 편집</td><td>상대적으로 불편</td><td>매우 쉬움</td></tr>
+          <tr><td>권장 사용처</td><td>DB 데이터, 장기 저장 데이터</td><td>소스코드, 노트북, 설정파일</td></tr>
+        </table>
+      </section>
+
+      <section id="dockerfile">
+        <h2>9. Dockerfile</h2>
+
+        <h3>9-1. 기본 빌드 명령</h3>
+        <pre><code>docker build -t my-image .</code></pre>
+
+        <h3>9-2. TensorFlow 이미지에 패키지 추가하는 예시 Dockerfile</h3>
+        <pre><code>FROM tensorflow/tensorflow:latest-gpu-jupyter
+
+RUN pip install pandas matplotlib scikit-learn
+WORKDIR /tf/notebooks
+EXPOSE 8888</code></pre>
+
+        <h3>9-3. 이미지 빌드와 실행</h3>
+        <pre><code>docker build -t tensorflow-custom .
+docker run --name tf-custom -d \
+  -p 8892:8888 \
+  --gpus all \
+  tensorflow-custom</code></pre>
+      </section>
+
+      <section id="compose">
+        <h2>10. Docker Compose</h2>
+        <p>이 파트는 사용자가 요청한 대로 <strong>WordPress + MySQL로 블로그를 만드는 예제</strong>로 다시 구성했습니다. 핵심은 <strong>로컬 MySQL이 이미 3306을 사용 중</strong>이라는 점입니다.</p>
+
+        <div class="callout warn">
+          <strong>포트 충돌 주의:</strong> WordPress는 웹 접속용으로 <span class="inline">8085:80</span> 을 사용하고, MySQL 컨테이너는 WordPress 내부 통신만 필요하므로 <strong>가장 안전한 방법은 DB 포트를 아예 외부에 공개하지 않는 것</strong>입니다. DB를 외부 툴로 직접 확인해야 한다면 <strong>3307:3306</strong> 으로 매핑하면 됩니다.
+        </div>
+
+        <h3>10-1. compose.yaml 예제</h3>
+        <pre><code>services:
+  db:
+    image: mysql:8.0
+    container_name: blog-mysql
+    restart: always
+    command: --default-authentication-plugin=mysql_native_password
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpass123
+      MYSQL_DATABASE: wordpressdb
+      MYSQL_USER: wpuser
+      MYSQL_PASSWORD: wppass123
+    volumes:
+      - blog_db_data:/var/lib/mysql
+    networks:
+      - blog-net
+    # 로컬 MySQL이 3306 사용 중이므로 기본은 외부 포트 미공개
+    # 외부에서 접속 테스트가 필요하면 아래 주석 해제
+    # ports:
+    #   - "3307:3306"
+
+  wordpress:
+    image: wordpress:latest
+    container_name: blog-wordpress
+    restart: always
+    depends_on:
+      - db
+    ports:
+      - "8085:80"
+    environment:
+      WORDPRESS_DB_HOST: db:3306
+      WORDPRESS_DB_NAME: wordpressdb
+      WORDPRESS_DB_USER: wpuser
+      WORDPRESS_DB_PASSWORD: wppass123
+    volumes:
+      - blog_wp_data:/var/www/html
+    networks:
+      - blog-net
+
+networks:
+  blog-net:
+
+volumes:
+  blog_db_data:
+  blog_wp_data:</code></pre>
+
+        <h3>10-2. 실행 명령</h3>
+        <pre><code>docker compose up -d
+docker compose ps
+docker compose logs</code></pre>
+
+        <h3>10-3. 접속 확인</h3>
+        <ul>
+          <li>브라우저에서 <span class="inline">http://localhost:8085</span> 접속</li>
+          <li>WordPress 설치 화면이 나오면 블로그 생성 진행</li>
+          <li>DB 포트를 외부에 공개하지 않아도 WordPress와 MySQL은 같은 Compose 네트워크 안에서 통신 가능</li>
+        </ul>
+
+        <h3>10-4. 종료와 정리</h3>
+        <pre><code>docker compose stop
+docker compose down</code></pre>
+
+        <h3>10-5. 데이터까지 완전히 지우는 경우</h3>
+        <pre><code>docker compose down -v</code></pre>
+
+        <h3>10-6. 자주 쓰는 Compose 명령</h3>
+        <pre><code>docker compose config
+docker compose start
+docker compose restart
+docker compose exec wordpress bash
+docker compose exec db mysql -u root -p</code></pre>
+
+        <div class="callout good">
+          <strong>실습 과제:</strong> 블로그 제목을 <strong>Docker Compose Blog</strong> 로 만들고, 첫 글을 작성한 뒤 <span class="inline">docker compose down</span> 후 다시 <span class="inline">docker compose up -d</span> 했을 때 데이터가 유지되는지 확인해 보세요.
+        </div>
+      </section>
+
+      <section id="summary">
+        <h2>11. 최종 정리</h2>
+        <ul class="check">
+          <li>웹서버 컨테이너 실행으로 Docker 기본 명령을 익혔다.</li>
+          <li>TensorFlow GPU Jupyter 이미지를 pull 하고 실행해 보았다.</li>
+          <li>컨테이너 상태 확인, 로그 확인, exec 접속, stop/start/rm 흐름을 연습했다.</li>
+          <li>이미지 조회, 삭제, 정리를 연습했다.</li>
+          <li>사용자 정의 네트워크를 만들고 컨테이너를 연결하는 개념을 이해했다.</li>
+          <li>파일 복사, 볼륨 마운트, 바인드 마운트 차이를 이해했다.</li>
+          <li>Dockerfile로 TensorFlow 기반 커스텀 이미지를 빌드해 보았다.</li>
+          <li>Docker Compose로 WordPress + MySQL 블로그 환경을 구성했다.</li>
+          <li>로컬 MySQL 3306 포트와 충돌하지 않도록 설계를 조정하는 방법을 익혔다.</li>
+        </ul>
+
+        <div class="callout good">
+          <strong>최종 과제</strong><br>
+          1) <span class="inline">tensorflow/tensorflow:latest-gpu-jupyter</span> 이미지를 pull 하고 컨테이너 실행하기<br>
+          2) 컨테이너 내부에서 TensorFlow 버전과 GPU 인식 여부 확인하기<br>
+          3) Compose로 WordPress 블로그 띄우기<br>
+          4) 로컬 MySQL 3306과 충돌하지 않게 구성 이유 설명하기<br>
+          5) 마지막에는 <span class="inline">docker compose down</span> 으로 전체 정리하기
+        </div>
+      </section>
+    </main>
+
+    <div class="footer">Docker 실습 강의안 · TensorFlow Docker 실습 + WordPress & MySQL Compose 예제</div>
+  </div>
+</body>
+</html>
