@@ -3,376 +3,425 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ABB EV Charging Technical Analysis Report</title>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;700&display=swap" rel="stylesheet">
+    <title>데이터 분석 연구원 포트폴리오 | SGR 지원</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap');
+        
         :root {
-            --abb-red: #ff0000;
-            --dark-grey: #333333;
-            --medium-grey: #666666;
-            --light-grey: #f8f9fa;
-            --border-color: #e0e0e0;
-            --text-color: #2c3e50;
-            --accent-blue: #0056b3;
-            --warning-orange: #f57c00;
+            --samsung-blue: #034EA2;
+            --samsung-dark: #002D5D;
         }
 
-        body {
-            font-family: 'Noto Sans KR', sans-serif;
-            line-height: 1.7;
-            color: var(--text-color);
-            margin: 0;
-            padding: 0;
-            background-color: #f0f2f5;
+        body { 
+            font-family: 'Noto Sans KR', sans-serif; 
+            scroll-behavior: smooth;
+            background-color: #ffffff;
+            color: #333;
         }
 
-        .container {
-            max-width: 1100px;
-            margin: 40px auto;
-            padding: 40px;
-            background: white;
-            box-shadow: 0 4px 30px rgba(0,0,0,0.08);
-            border-radius: 12px;
+        .bg-samsung { background-color: var(--samsung-blue); }
+        .text-samsung { color: var(--samsung-blue); }
+        
+        .section-padding { padding: 80px 0; }
+        
+        .project-card {
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            border: 1px solid #e5e7eb;
+        }
+        
+        .project-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            border-color: var(--samsung-blue);
         }
 
-        header {
-            border-bottom: 5px solid var(--abb-red);
-            padding-bottom: 25px;
-            margin-bottom: 40px;
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-end;
+        .skill-tag {
+            background-color: #f3f4f6;
+            color: #4b5563;
+            padding: 4px 12px;
+            border-radius: 9999px;
+            font-size: 0.875rem;
+            font-weight: 500;
         }
 
-        .header-title h1 {
-            color: var(--abb-red);
-            margin: 0;
-            font-size: 2.2rem;
-            letter-spacing: -1px;
+        .gradient-text {
+            background: linear-gradient(90deg, var(--samsung-blue), #0077ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
 
-        .header-title p {
-            margin: 5px 0 0 0;
-            color: var(--medium-grey);
-            font-weight: 300;
-        }
-
-        .badge {
-            background: var(--dark-grey);
-            color: white;
-            padding: 6px 16px;
-            border-radius: 4px;
-            font-size: 0.85rem;
-            font-weight: bold;
-        }
-
-        section {
-            margin-bottom: 50px;
-        }
-
-        h2 {
-            display: flex;
-            align-items: center;
-            font-size: 1.5rem;
-            color: var(--dark-grey);
-            margin-bottom: 25px;
-            padding-bottom: 10px;
-            border-bottom: 2px solid var(--light-grey);
-        }
-
-        h2::before {
+        /* Timeline styling */
+        .timeline-item::before {
             content: '';
-            display: inline-block;
-            width: 10px;
-            height: 24px;
-            background: var(--abb-red);
-            margin-right: 12px;
-        }
-
-        h2 a.ref-link {
-            font-size: 0.9rem;
-            margin-left: 15px;
-            color: var(--accent-blue);
-            text-decoration: none;
-            font-weight: normal;
-            border: 1px solid var(--accent-blue);
-            padding: 2px 8px;
-            border-radius: 4px;
-            transition: all 0.2s;
-        }
-
-        h2 a.ref-link:hover {
-            background: var(--accent-blue);
-            color: white;
-        }
-
-        h3 {
-            color: var(--abb-red);
-            font-size: 1.15rem;
-            margin-top: 30px;
-            margin-bottom: 15px;
-            display: flex;
-            align-items: center;
-        }
-
-        .grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 25px;
-        }
-
-        .card {
-            border: 1px solid var(--border-color);
-            padding: 20px;
-            border-radius: 8px;
-            background: #fff;
-            transition: transform 0.2s;
-        }
-
-        .card:hover {
-            border-color: var(--abb-red);
-        }
-
-        .highlight-box {
-            background: var(--light-grey);
-            border-left: 4px solid var(--dark-grey);
-            padding: 20px;
-            margin: 20px 0;
-            font-size: 0.95rem;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 20px 0;
-            font-size: 0.9rem;
-        }
-
-        th, td {
-            text-align: left;
-            padding: 12px;
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        th {
-            background-color: var(--light-grey);
-            font-weight: 700;
-            color: var(--dark-grey);
-        }
-
-        .status-tag {
-            display: inline-block;
-            padding: 3px 10px;
-            border-radius: 4px;
-            font-size: 0.75rem;
-            font-weight: bold;
-            text-transform: uppercase;
-        }
-
-        .status-charging { background: #e3f2fd; color: #1976d2; }
-        .status-finishing { background: #fff3e0; color: #f57c00; }
-        .status-available { background: #e8f5e9; color: #388e3c; }
-        .status-fault { background: #ffebee; color: #c62828; }
-        .status-preparing { background: #f3e5f5; color: #7b1fa2; }
-
-        .api-list {
-            list-style: none;
-            padding: 0;
-        }
-
-        .api-list li {
-            margin-bottom: 10px;
-            padding-left: 20px;
-            position: relative;
-        }
-
-        .api-list li::before {
-            content: '•';
-            color: var(--abb-red);
-            font-weight: bold;
             position: absolute;
-            left: 0;
-        }
-
-        .policy-label {
-            font-weight: bold;
-            color: var(--abb-red);
-            display: block;
-            margin-bottom: 5px;
-        }
-
-        footer {
-            text-align: center;
-            font-size: 0.85rem;
-            color: var(--medium-grey);
-            margin-top: 60px;
-            padding-top: 30px;
-            border-top: 1px solid var(--border-color);
-        }
-
-        @media (max-width: 850px) {
-            .grid { grid-template-columns: 1fr; }
-            .container { padding: 20px; margin: 10px; }
+            left: -9px;
+            top: 0;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background-color: var(--samsung-blue);
+            border: 4px solid #fff;
+            box-shadow: 0 0 0 1px var(--samsung-blue);
         }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <header>
-        <div class="header-title">
-            <h1>ABB EV Infrastructure Analysis</h1>
-            <p>전기차 충전 하드웨어 및 소프트웨어 통합 연동 기술 분석 보고서</p>
-        </div>
-        <div class="badge">Technical Reference v1.3</div>
-    </header>
-
-    <!-- 1. 기본 기술 영역 -->
-    <section>
-        <h2>1. 기본 기술 영역 (Technical Foundation)</h2>
-        <div class="grid">
-            <div class="card">
-                <h3>테스트 환경 및 에뮬레이터</h3>
-                <ul class="api-list">
-                    <li><strong>원격 모니터링:</strong> ABB Ability™ Charger Care 플랫폼 활용</li>
-                    <li><strong>시뮬레이션:</strong> OCPP 1.6J/2.0.1 표준 시뮬레이터 지원</li>
-                    <li><strong>장비 미보유 테스트:</strong> MicroOCPP 등 오픈소스 도구와 높은 호환성</li>
-                </ul>
+    <!-- Navigation -->
+    <nav class="fixed top-0 w-full bg-white/90 backdrop-blur-md z-50 border-b border-gray-100">
+        <div class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <div class="flex items-center space-x-2">
+                <div class="w-8 h-8 bg-samsung rounded-lg flex items-center justify-center text-white font-bold text-xl">S</div>
+                <span class="font-bold text-xl tracking-tight">DATA ANALYST <span class="text-samsung">PORTFOLIO</span></span>
             </div>
-            <div class="card">
-                <h3>통신 및 데이터 흐름</h3>
-                <ul class="api-list">
-                    <li><strong>프로토콜:</strong> OCPP 1.6J (JSON over WebSocket)</li>
-                    <li><strong>인증 보안:</strong> TLS 1.2+ 기반 보안 연결 (WSS)</li>
-                    <li><strong>데이터:</strong> 실시간 MeterValues 및 트랜잭션 로깅</li>
-                </ul>
+            <div class="hidden md:flex space-x-8 text-sm font-medium text-gray-600">
+                <a href="#home" class="hover:text-samsung transition">Home</a>
+                <a href="#about" class="hover:text-samsung transition">About</a>
+                <a href="#skills" class="hover:text-samsung transition">Skills</a>
+                <a href="#projects" class="hover:text-samsung transition">Projects</a>
+                <a href="#contact" class="hover:text-samsung transition">Contact</a>
             </div>
         </div>
-    </section>
+    </nav>
 
-    <!-- 2. 상세 API 및 개발 문서 -->
-    <section>
-        <h2>2. 제조사 API/SDK 및 개발자 도구 
-            <a href="https://library.e.abb.com/public/82e5b122c32a48ffb1aa5120708c0b6b/4EVC901703-BREN_ConnectedServices_11_19.pdf" target="_blank" class="ref-link">
-                [공식 PDF 자료 보기]
-            </a>
-        </h2>
-        <div class="grid">
-            <div class="card">
-                <h3>제공 API 서비스</h3>
-                <ul class="api-list">
-                    <li><strong>OCPP API:</strong> 충전 세션, 가격 정의, 인보이스 처리</li>
-                    <li><strong>Service API (Add-on):</strong> 케이블 연결 상세 및 장애 데이터</li>
-                    <li><strong>Demand Response API:</strong> 전력 부하 원격 제한 제어</li>
-                </ul>
-            </div>
-            <div class="card">
-                <h3>관리용 웹 도구</h3>
-                <ul class="api-list">
-                    <li><strong>Driver Care:</strong> 실시간 상태 맵 및 통계 리포트</li>
-                    <li><strong>Payment Mgmt:</strong> 결제 터미널 설정 및 내역 모니터링</li>
-                    <li><strong>Charger Care:</strong> 기판 레벨 원격 진단 및 보드 리부팅</li>
-                </ul>
+    <!-- Hero Section -->
+    <section id="home" class="pt-32 pb-20 lg:pt-48 lg:pb-32 bg-slate-50">
+        <div class="container mx-auto px-6">
+            <div class="max-w-4xl">
+                <h2 class="text-sm font-bold text-samsung tracking-[0.2em] mb-4 uppercase">Samsung Global Research</h2>
+                <h1 class="text-5xl lg:text-7xl font-bold leading-tight mb-8">
+                    데이터를 기반으로<br>
+                    <span class="gradient-text">소통하고 싶은 연구원</span>
+                </h1>
+                <p class="text-xl text-gray-600 mb-10 leading-relaxed max-w-2xl">
+                    데이터 분석 전문가 과정을 수강하며 정형/비정형 데이터셋 전처리 및 통계적 인사이트 도출 역량을 확보했습니다. 
+                    신뢰도 높은 설문 분석과 정교한 리포트 작성을 통해 리서치 가치를 극대화하겠습니다.
+                </p>
+                <div class="flex flex-wrap gap-4">
+                    <a href="#projects" class="bg-samsung text-white px-8 py-4 rounded-xl font-bold hover:bg-blue-700 transition shadow-lg shadow-blue-200">주요 프로젝트 보기</a>
+                    
+                </div>
             </div>
         </div>
     </section>
 
-    <!-- 3. 사용자 시나리오 및 APP 표기 정책 -->
-    <section>
-        <h2>3. 사용자 시나리오 및 APP 표기 정책</h2>
-        
-        <h3>3.1 단계별 APP 상태 표기 기준</h3>
-        <table>
-            <thead>
-                <tr>
-                    <th>단계</th>
-                    <th>OCPP 상태값</th>
-                    <th>APP 노출 텍스트 (권장)</th>
-                    <th>사용자 가이드 알림</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td>대기</td>
-                    <td><span class="status-tag status-available">Available</span></td>
-                    <td><strong>충전 가능</strong></td>
-                    <td>"QR 코드를 스캔하여 충전을 시작하세요."</td>
-                </tr>
-                <tr>
-                    <td>연결/인증</td>
-                    <td><span class="status-tag status-preparing">Preparing</span></td>
-                    <td><strong>연결 및 인증 중</strong></td>
-                    <td>"차량과 통신 중입니다. 잠시만 기다려주세요."</td>
-                </tr>
-                <tr>
-                    <td>충전 중</td>
-                    <td><span class="status-tag status-charging">Charging</span></td>
-                    <td><strong>충전 중 (n%)</strong></td>
-                    <td>실시간 출력(kW), 충전량(kWh), 경과시간 표시</td>
-                </tr>
-                <tr>
-                    <td>충전 종료</td>
-                    <td><span class="status-tag status-finishing">Finishing</span></td>
-                    <td><strong>충전 완료</strong></td>
-                    <td>"충전이 완료되었습니다. 커넥터를 분리해 주세요."</td>
-                </tr>
-                <tr>
-                    <td>유휴 상태</td>
-                    <td><span class="status-tag status-finishing">Finishing</span></td>
-                    <td><strong>유휴 상태 (점유 중)</strong></td>
-                    <td>"미분리 시 유휴 요금이 발생할 수 있습니다." (타이머 노출)</td>
-                </tr>
-                <tr>
-                    <td>장애</td>
-                    <td><span class="status-tag status-fault">Faulted</span></td>
-                    <td><strong>점검 중</strong></td>
-                    <td>"현재 이용이 불가합니다. 인근 충전소를 이용해 주세요."</td>
-                </tr>
-            </tbody>
-        </table>
-
-        <div class="grid">
-            <div class="card">
-                <h3>3.2 유휴 요금(Idle Fee) 정책</h3>
-                <span class="policy-label">판단 기준</span>
-                <p style="font-size: 0.9rem; margin-bottom: 10px;">Status가 Finishing 또는 SuspendedEV이나 커넥터가 분리되지 않은 상태</p>
-                <span class="policy-label">APP UI 정책</span>
-                <ul class="api-list" style="font-size: 0.9rem;">
-                    <li>완료 후 경과 시간 실시간 카운트 다운 노출</li>
-                    <li>푸시 알림: 완료 직후, 유휴 요금 발생 5분 전 전송</li>
-                    <li>요금 산식: (분리 시점 - 완료 시점) - 유예 시간 기반 정산</li>
-                </ul>
-            </div>
-            <div class="card">
-                <h3>3.3 커넥터 Lock/Unlock 시나리오</h3>
-                <span class="policy-label">Lock 동작</span>
-                <p style="font-size: 0.9rem; margin-bottom: 10px;">충전 시작(StartTransaction) 시 물리적 잠금 수행</p>
-                <span class="policy-label">Unlock 요청 UI</span>
-                <ul class="api-list" style="font-size: 0.9rem;">
-                    <li>상세 페이지 내 [커넥터 잠금 해제 요청] 버튼 배치</li>
-                    <li>해제 실패 시 가이드: "차량 도어 잠금을 해제해 주세요"</li>
-                    <li>비상 상황 시 원격 UnlockConnector 명령 연동</li>
-                </ul>
+    <!-- About & Education Section -->
+    <section id="about" class="section-padding bg-white">
+        <div class="container mx-auto px-6">
+            <div class="grid lg:grid-cols-2 gap-16 items-start">
+                <div>
+                    <h3 class="text-3xl font-bold mb-8">Professional Summary</h3>
+                    <p class="text-gray-600 mb-6 leading-relaxed">
+                        삼성 글로벌 리서치에서 요구하는 <b>'데이터 분석'</b> 역량을 갖추기 위해 약 5개월간 데이터 분석 교육을 수강했습니다. 
+                        데이터의 단순 정리를 넘어, 통계적 유의성을 검토하고 비즈니스 언어로 보고서를 작성하는 프로세스에 익숙합니다.
+                    </p>
+                    <div class="grid grid-cols-1 gap-4">
+                        <div class="flex items-center p-5 bg-blue-50 rounded-xl border border-blue-100">
+                            <i class="fas fa-microscope text-samsung text-2xl mr-4 w-8 text-center"></i>
+                            <div>
+                                <h4 class="font-bold">전문 진단 및 모델링 역량</h4>
+                                <p class="text-xs text-gray-500 mt-1">Borich, Locus for Focus 등 학술적 모델을 활용한 요구도 진단 가능</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center p-5 bg-blue-50 rounded-xl border border-blue-100">
+                            <i class="fas fa-file-invoice text-samsung text-xl mr-4 w-8 text-center"></i>
+                            <div>
+                                <h4 class="font-bold">리포트 작성 전문성</h4>
+                                <p class="text-xs text-gray-500 mt-1">분석 결과를 시각화하여 경영진/현업 타겟의 리포트 작성 보조 가능</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center p-5 bg-blue-50 rounded-xl border border-blue-100">
+                            <i class="fas fa-database text-samsung text-xl mr-4 w-8 text-center"></i>
+                            <div>
+                                <h4 class="font-bold">데이터 전처리 및 기초통계 분석</h4>
+                                <p class="text-xs text-gray-500 mt-1">대규모 정형 데이터셋의 결측치 처리 및 상관관계 분석 리포트 산출</p>
+                            </div>
+                        
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <h3 class="text-3xl font-bold mb-8">Education</h3>
+                    <div class="relative border-l-2 border-gray-100 ml-3 py-2 space-y-12">
+                        <div class="relative pl-8 timeline-item">
+                            <h4 class="text-xl font-bold">핀테크 데이터 분석 전문가 과정</h4>
+                            <p class="text-samsung font-semibold mb-2">2025.12.18 - 2026.06.18</p>
+                            <p class="text-gray-600 text-sm leading-relaxed">
+                                파이썬 기반 데이터 분석, 머신러닝 기초, SQL 연동 실습을 포함한 데이터 분석 전문가 집중 훈련 과정. 
+                                정규 분포 검정, 이상치 처리(IQR), 비정형 텍스트 마이닝(LDA) 등 실무형 분석 기법 마스터.
+                            </p>
+                        </div>
+                        <div class="relative pl-8 timeline-item">
+                            <h4 class="text-xl font-bold">고려대학교 일반대학원 교육학과 석사</h4>
+                            <p class="text-gray-400 font-semibold mb-2">2022.09 - 2025.08</p>
+                            <p class="text-gray-600 text-sm italic">SPSS 통계 분석. 탐색적 요인분석(EFA), 신뢰도 분석, 기술통계, 상관분석, 단순회귀분석, PROCESS MACRO</p>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </section>
 
-    <!-- 4. 가이드 및 레퍼런스 -->
-    <section>
-        <h2>4. 운영 가이드 및 제약사항</h2>
-        <div class="card">
-            <ul class="api-list">
-                <li><strong>통신 안정성:</strong> 지하 주차장 설치 시 LTE 수신 불량 대비 이더넷 유선 연결 필수</li>
-                <li><strong>부하 관리:</strong> ABB 전용 Demand Response API를 통한 사이트별 총 전력량 제한 설정 가능</li>
-                <li><strong>UX 표준:</strong> ISO 15118(Plug & Charge) 기반의 심플하고 직관적인 인터페이스 지향</li>
-            </ul>
+    <!-- Skills Section -->
+    <section id="skills" class="section-padding bg-gray-50">
+        <div class="container mx-auto px-6">
+            <h3 class="text-3xl font-bold mb-12 text-center">Core Technical Skills</h3>
+            <div class="grid md:grid-cols-3 gap-8">
+                <!-- Data Processing -->
+                <div class="bg-white p-8 rounded-2xl border border-gray-100 shadow-sm">
+                    <div class="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center mb-6">
+                        <i class="fas fa-tools text-samsung text-xl"></i>
+                    </div>
+                    <h4 class="text-xl font-bold mb-4">Preprocessing</h4>
+                    <p class="text-gray-500 text-sm mb-6">데이터 정제 및 품질 확보</p>
+                    <div class="flex flex-wrap gap-2">
+                        <span class="skill-tag">Pandas</span>
+                        <span class="skill-tag">Numpy</span>
+                        <span class="skill-tag">IQR Outlier Detection</span>
+                        <span class="skill-tag">Missing Value Imputation</span>
+                        <span class="skill-tag">Feature Scaling</span>
+                    </div>
+                </div>
+                <!-- Analysis & Stats -->
+                <div class="bg-white p-8 rounded-2xl border border-gray-100 shadow-sm">
+                    <div class="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center mb-6">
+                        <i class="fas fa-chart-line text-samsung text-xl"></i>
+                    </div>
+                    <h4 class="text-xl font-bold mb-4">Analytics</h4>
+                    <p class="text-gray-500 text-sm mb-6">데이터 진단 및 통계 분석</p>
+                    <div class="flex flex-wrap gap-2">
+                        <span class="skill-tag">EDA</span>
+                        <span class="skill-tag">SPSS</span>
+                        <span class="skill-tag">Basic Statistics</span>
+                        <span class="skill-tag">NLP (LDA/Topic)</span>
+                        <span class="skill-tag">WordCloud</span>
+                        <span class="skill-tag">Word2Vec</span>
+                    </div>
+                </div>
+                <!-- Tools & Database -->
+                <div class="bg-white p-8 rounded-2xl border border-gray-100 shadow-sm">
+                    <div class="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center mb-6">
+                        <i class="fas fa-code text-samsung text-xl"></i>
+                    </div>
+                    <h4 class="text-xl font-bold mb-4">Tools</h4>
+                    <p class="text-gray-500 text-sm mb-6">시스템 운영 및 시각화</p>
+                    <div class="flex flex-wrap gap-2">
+                        <span class="skill-tag">MySQL</span>
+                        <span class="skill-tag">Matplotlib</span>
+                        <span class="skill-tag">Seaborn</span>
+                        <span class="skill-tag">Selenium</span>
+                        <span class="skill-tag">Jupyter</span>
+                    </div>
+                </div>
+            </div>
         </div>
     </section>
 
-    <footer>
-        &copy; 2024 Project EV-Service Integration. Based on ABB Technical Documentation.
+    <!-- Projects Section -->
+    <section id="projects" class="section-padding bg-white">
+        <div class="container mx-auto px-6">
+            <h3 class="text-3xl font-bold mb-12 text-center">Key Projects</h3>
+            
+            <!-- Main Project 1: Unstructured Data -->
+            <div class="project-card bg-white rounded-3xl overflow-hidden mb-12 shadow-sm border border-gray-100">
+                <div class="grid lg:grid-cols-2">
+                    <div class="p-8 lg:p-12">
+                        <div class="flex items-center space-x-2 mb-4">
+                            <span class="px-3 py-1 bg-blue-600 text-white text-xs font-bold rounded">Unstructured Data</span>
+                            <span class="px-3 py-1 bg-gray-100 text-gray-600 text-xs font-bold rounded">NLP</span>
+                        </div>
+                        <h4 class="text-2xl font-bold mb-6">금융앱 리뷰 수집 및 토픽 모델링 기반 분석</h4>
+                        <p class="text-gray-600 mb-8 leading-relaxed italic">
+                            "설문조사 주관식 답변 및 정성적 데이터를 분석하여 조직의 핵심 과제를 도출하는 역량을 증명합니다."
+                        </p>
+                        <ul class="space-y-4 mb-8">
+                            <li class="flex items-start">
+                                <i class="fas fa-check-circle text-samsung mt-1 mr-3"></i>
+                                <span><b>Process:</b> 구글 플레이 스토어 리뷰 1년치 크롤링 → MySQL 적재 → 불용어 처리 및 형태소 분석</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-check-circle text-samsung mt-1 mr-3"></i>
+                                <span><b>Method:</b> LDA(Latent Dirichlet Allocation) 토픽 모델링을 통해 유저 불만족 키워드 클러스터링</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-check-circle text-samsung mt-1 mr-3"></i>
+                                <span><b>Output:</b> T-SNE 시각화 및 워드클라우드를 포함한 최종 전략 리포트 작성</span>
+                            </li>
+                        </ul>
+                        <div class="flex gap-4">
+                            <span class="text-xs font-bold text-gray-400">Python</span>
+                            <span class="text-xs font-bold text-gray-400">Selenium</span>
+                            <span class="text-xs font-bold text-gray-400">LDA</span>
+                        </div>
+                            <a href="https://github.com/hmpark-lab/fintech04/blob/main/06Machine_Learning/15.%20%EA%B8%88%EC%9C%B5%EC%95%B1%EB%A6%AC%EB%B7%B0%EB%B6%84%EC%84%9D%ED%95%98%EA%B8%B0_0304/20%EA%B8%88%EC%9C%B5%EC%95%B1%EB%A6%AC%EB%B7%B0%EB%B6%84%EC%84%9D%ED%95%98%EA%B8%B0_wordcloud_LDA%2BT-sne.ipynb" target="_blank" class="inline-flex items-center text-xs font-bold text-samsung hover:underline">
+                                <i class="fab fa-github mr-2 text-base"></i> View Source Code on GitHub
+                            </a>
+                        </div>
+                    <div class="bg-slate-100 p-8 lg:p-12">
+                        <div class="grid grid-cols-1 gap-6 h-full">
+                            <div class="flex flex-col items-center">
+                                <p class="text-xs font-bold text-gray-400 mb-2 uppercase tracking-widest">Word Cloud Analysis</p>
+                                <img src="https://raw.githubusercontent.com/hmpark-lab/fintech04/main/10%EC%84%9C%EB%B9%84%EC%8A%A4%EA%B8%B0%ED%9A%8D/kbcard_project/img/hana(pos)%20word%20cloud.png" 
+                                     alt="Word Cloud" class="rounded-xl shadow-md border border-gray-200 bg-white object-contain w-full max-h-48">
+                            </div>
+                            <div class="flex flex-col items-center">
+                                <p class="text-xs font-bold text-gray-400 mb-2 uppercase tracking-widest">T-SNE Visualization</p>
+                                <img src="https://raw.githubusercontent.com/hmpark-lab/fintech04/main/10%EC%84%9C%EB%B9%84%EC%8A%A4%EA%B8%B0%ED%9A%8D/kbcard_project/img/hana(neg)%20t-sne.png" 
+                                     alt="T-SNE" class="rounded-xl shadow-md border border-gray-200 bg-white object-contain w-full max-h-48">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Project 2: Competency Modeling (Added) -->
+            <div class="project-card bg-white rounded-3xl overflow-hidden mb-12 shadow-sm border border-gray-100">
+                <div class="grid lg:grid-cols-2">
+                    <div class="p-8 lg:p-12">
+                        <div class="flex items-center space-x-2 mb-4">
+                            <span class="px-3 py-1 bg-samsung text-white text-xs font-bold rounded">Consulting</span>
+                            <span class="px-3 py-1 bg-gray-100 text-gray-600 text-xs font-bold rounded">Diagnostics</span>
+                        </div>
+                        <h4 class="text-2xl font-bold mb-6">역량 모델링 기반 교육 요구도 분석 및 전략 수립</h4>
+                        <p class="text-gray-600 mb-8 leading-relaxed italic">
+                            "조직 진단 설문 설계부터 통계 분석을 통한 우선순위 도출 과정을 수행했습니다."
+                        </p>
+                        <ul class="space-y-4 mb-8">
+                            <li class="flex items-start">
+                                <i class="fas fa-check-circle text-samsung mt-1 mr-3"></i>
+                                <span><b>Process:</b> 임직원 대상 역량 모델링 설문 데이터 수집 및 분석</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-check-circle text-samsung mt-1 mr-3"></i>
+                                <span><b>Method:</b> 독립표본 t-검정을 활용한 집단 간 차이 분석 및 Borich 요구도 공식 적용</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-check-circle text-samsung mt-1 mr-3"></i>
+                                <span><b>Output:</b> Locus for Focus 모델 매트릭스 구성을 통한 최우선 교육 과제 도출</span>
+                            </li>
+                        </ul>
+                        <div class="flex gap-4">
+                            <span class="text-xs font-bold text-gray-400">Borich Model</span>
+                            <span class="text-xs font-bold text-gray-400">Locus for Focus</span>
+                            <span class="text-xs font-bold text-gray-400">t-Test</span>
+                            <span class="text-xs font-bold text-gray-400">SPSS</span>
+                        </div>
+                    </div>
+                    <div class="bg-blue-50 p-8 lg:p-12 flex items-center justify-center">
+                        <div class="flex flex-col items-center w-full">
+                            <p class="text-xs font-bold text-blue-400 mb-4 uppercase tracking-widest">Diagnostic Analysis Visualization</p>
+                            <img src="https://raw.githubusercontent.com/hmpark-lab/fintech04/main/10%EC%84%9C%EB%B9%84%EC%8A%A4%EA%B8%B0%ED%9A%8D/kbcard_project/img/modeling.png" 
+                                 alt="Competency Modeling Analysis" class="rounded-xl shadow-lg border border-gray-200 bg-white object-contain w-full max-h-96">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-8">
+                <!-- Project 2: Structured Data -->
+                <div class="project-card bg-white p-8 rounded-3xl">
+                    <span class="px-3 py-1 bg-green-100 text-green-700 text-xs font-bold rounded mb-4 inline-block">Structured Data</span>
+                    <h4 class="text-xl font-bold mb-4 font-bold">데이터 정교한 전처리 및 기초 통계 분석</h4>
+                    <p class="text-gray-600 text-sm mb-6 leading-relaxed">
+                        실무 설문 데이터의 신뢰도를 높이기 위한 전처리 기술을 연마했습니다. 결측값과 이상치 제거를 통해 분석용 데이터셋의 품질을 95% 이상 확보하는 프로세스를 구축했습니다.
+                    </p>
+                    <div class="space-y-2 mb-6">
+                        <p class="text-xs text-gray-500 font-medium italic"><i class="fas fa-tag mr-2"></i>IQR 기반 이상치 탐지 파이프라인 구축</p>
+                        <p class="text-xs text-gray-500 font-medium italic"><i class="fas fa-tag mr-2"></i>수치형/범주형 변수별 특화된 결측값 처리(Mode/Median)</p>
+                    </div>
+                    <p class="text-xs font-bold text-samsung">진단 시스템 정형 데이터 분석 역량 어필</p>
+                </div>
+
+                <!-- Project 3: EDA & Visualization -->
+                <div class="project-card bg-white p-8 rounded-3xl">
+                    <span class="px-3 py-1 bg-purple-100 text-purple-700 text-xs font-bold rounded mb-4 inline-block">Visualization</span>
+                    <h4 class="text-xl font-bold mb-4 font-bold">통계적 EDA 실습 및 리포트 시각화 라이브러리 활용</h4>
+                    <p class="text-gray-600 text-sm mb-6 leading-relaxed">
+                        복잡한 데이터를 한눈에 이해할 수 있는 리포트를 만들기 위해 Matplotlib과 Seaborn을 깊이 있게 활용했습니다. 상관관계 히트맵과 분포도를 통해 데이터의 숨겨진 패턴을 포착합니다.
+                    </p>
+                    <div class="space-y-2 mb-6">
+                        <p class="text-xs text-gray-500 font-medium italic"><i class="fas fa-tag mr-2"></i>다양한 데이터 분포 시각화 (Skewness/Kurtosis)</p>
+                        <p class="text-xs text-gray-500 font-medium italic"><i class="fas fa-tag mr-2"></i>변수 간 상관관계 분석을 통한 핵심 요인 도출</p>
+                    </div>
+                    <p class="text-xs font-bold text-samsung">결과 보고서 및 피드백 리포트 작성 보조 역량</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Professional Values / JD Match -->
+    <section class="section-padding bg-slate-900 text-white">
+        <div class="container mx-auto px-6">
+            <div class="max-w-4xl mx-auto text-center">
+                <h3 class="text-3xl font-bold mb-16">How I Match <span class="text-blue-400">Samsung Global Research</span></h3>
+                <div class="grid md:grid-cols-2 gap-12 text-left">
+                    <div>
+                        <h4 class="text-xl font-bold mb-4 border-l-4 border-blue-500 pl-4">진단 및 설문 지원</h4>
+                        <p class="text-gray-400 text-sm leading-relaxed">
+                            비정형 데이터(리뷰/설문) 크롤링 및 텍스트 마이닝 숙련도를 통해 임직원 및 기업 진단 설문의 주관식 답변에서 정교한 핵심 키워드를 추출할 수 있습니다.
+                        </p>
+                    </div>
+                    <div>
+                        <h4 class="text-xl font-bold mb-4 border-l-4 border-blue-500 pl-4">통계 및 전처리</h4>
+                        <p class="text-gray-400 text-sm leading-relaxed">
+                            결측치와 이상치가 빈번한 설문 데이터에서 IQR 및 보간법을 활용하여 통계적으로 신뢰할 수 있는 데이터셋을 구성하는 데 능숙합니다.
+                        </p>
+                    </div>
+                    <div>
+                        <h4 class="text-xl font-bold mb-4 border-l-4 border-blue-500 pl-4">리포트 및 행정 보조</h4>
+                        <p class="text-gray-400 text-sm leading-relaxed">
+                            Pandas를 활용한 데이터 관리 자동화 및 Matplotlib 시각화 역량을 바탕으로 분석 결과 보고서의 완성도를 높이고 관련 행정 업무를 효율적으로 처리하겠습니다.
+                        </p>
+                    </div>
+                    <div>
+                        <h4 class="text-xl font-bold mb-4 border-l-4 border-blue-500 pl-4">시스템 운영 및 업데이트</h4>
+                        <p class="text-gray-400 text-sm leading-relaxed">
+                            MySQL 연동 실습 경험을 바탕으로 진단 시스템의 데이터베이스 관리 및 기존 데이터의 주기적인 업데이트 업무를 안정적으로 수행할 수 있습니다.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="section-padding bg-white">
+        <div class="container mx-auto px-6 text-center">
+            <h3 class="text-3xl font-bold mb-8">Contact Information</h3>
+            <p class="text-gray-500 mb-12">데이터로 세상을 읽고 가치를 만드는 연구원이 되겠습니다.</p>
+            <div class="flex flex-col md:flex-row justify-center items-center gap-10">
+                <div class="flex items-center space-x-3">
+                    <i class="fas fa-envelope text-samsung"></i>
+                    <span class="font-bold">hmabcpark@kakao.com</span>
+                </div>
+                <div class="flex items-center space-x-3">
+                    <i class="fas fa-phone text-samsung"></i>
+                    <span class="font-bold">010-9190-7276</span>
+                </div>
+                <div class="flex items-center space-x-3">
+                    <i class="fab fa-github text-samsung"></i>
+                    <a href="#" class="hover:text-samsung font-bold underline">Github Portfolio</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="py-10 bg-gray-50 text-center text-gray-400 text-xs">
+        <p>© 2026 Data Analyst Portfolio. Optimized for Samsung Global Research Application.</p>
     </footer>
-</div>
 
+    <!-- Smooth Scrolling Script -->
+    <script>
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+    </script>
 </body>
 </html>
